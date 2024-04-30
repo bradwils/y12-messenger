@@ -15,7 +15,7 @@ const firebaseConfig = { //paste your own
 //by attatching all of these functions to the window object, they can be accessed from anywhere in the code. global scope. can be used as ref, set, etc (not need for window.ref, window.set) )
 window.initializeApp = initializeApp; 
 
-window.getDatabase = getDatabase; 
+window.getDatabase = getDatabase; 28
 window.ref = ref;
 window.set = set;
 window.get = get;

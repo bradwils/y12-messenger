@@ -1,3 +1,4 @@
+const { set } = require("firebase/database");
 
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
@@ -40,10 +41,6 @@ async function writeUserData(userID, displayName) {
     }
   });
 }
-//            userID        key       displayname        convoIDs
-// writeUserData('user3', 'loginKeyStr', 'pete', ['convo1', 'convo2', rndm()]);
-
-
 
 //below is currently not in use & has errors (todo)
 
@@ -64,33 +61,46 @@ async function initiateNewConversation(participants) { //NOT TESTED
 
       const db = getDatabase(app);
       // var reference = ref(db, 'conversations/' + getNextAvailableConversationID() + '/' )
-      id = await getNextAvailableConversationID();
+      convoID = await getNextAvailableConversationID();
       console.log('id: ' + id)
       var reference = ref(db, 'conversations/' + id)
 
-      //write participant IDs  
+      //write participant IDs into an array
+      //write check; if participants is already an arrray, do as already below. otherwise, split and then store array
       
       await set(reference, {
-        Participants: [participants] //in the participant section of that conversation, write all of the participants.
+        Participants: String(participants) //in the participant section of that conversation, write all of the participants.
       });
 
 
       for (i in participants) { //for each user
         const db = getDatabase(app);
-        var reference = ref(db, 'users/' + participants[i] + '/conversations/') //set reference to their section
-        
-        //write participant IDs    
-    
-        await set(reference, { //need to append to the array, not overwrite it
-          Conversations: 'newconvo' + id //for the conversation reference write this convo (FOR TESTING, needs to append array to add new convos)
-        });
+        var reference = ref(db, 'users/' + participants[i] + '/') //set reference to their section
+
+        await readDB('users/' + participants[i] + '/').then((response) => { //read db, when get a return parse it as 'response'
+          if (response !== false) {
+
+            currentData = JSON.parse(response) //simplify this process later into one efficient step.
+            // console.log(currentData)
+            currentData.push(convoID) //adds the convoID to the current data (which in this case is the array of conversations)
+            //now we have updated convo list, we can write it back to the db
+            var reference = ref(db, 'users/' + participants[i] + '/')
+
+            set (reference, {
+              Conversations: String(currentData)
+            });
+            //updated the user's data with the new conversation IDs, done! (?)
+            
+          }
+        });        //updated conversation ID to be old convos + new
+
+        //here, within this conversations 'users' section we're saving an array of users that are in this conversation.
 
       }
     }
 };
 
 
-var temp;
 
 function readDB(path) { //path should be used like this: 
   const db = getDatabase(app); //updates db shit (idrk waht it does)
@@ -99,7 +109,7 @@ function readDB(path) { //path should be used like this:
    if (snapshot.exists()) { //if snapshot does exist
     console.log('snapshot exists'); //yep
     lastDbSnapshot = snapshot.val(); //set it to lastDbSnapshot
-    return; //returns the data as an object to the return function that we're im, and then that return will return data to the function.
+    return snapshot.val(); //returns the data as an object to the return function that we're im, and then that return will return data to the function.
 
     } else {
       console.log('bad path') //works!
@@ -118,7 +128,7 @@ function readDB(path) { //path should be used like this:
 async function sendMessage(conversationID, content, sender, timestamp) { 
   //write message data
   const db = getDatabase(app);
-  var reference = ref(db, 'conversations/' + conversationID + '/messages/');
+  var reference = ref(db, 'conversations/' + conversationID + '/messages/' + 'unique message ID');
   await set(reference, {
     Content: content,
     Owner: sender,
@@ -130,13 +140,13 @@ async function sendMessage(conversationID, content, sender, timestamp) {
 
 // sendMessage(<conversationID>, <content>)
 
-async function existingConversationCheck(users) {
+async function existingConversationCheck(users) { //unfinished
   return readDB('conversations/').then((response) => { //under construction
-    // console.log(lastDbSnapshot[10].userbrad) //read db, when get a return parse it as 'response'
-    for (i=0; i < (Object.keys(lastDbSnapshot)); i++) {
+    // console.log(response[10].userbrad) //read db, when get a return parse it as 'response'
+    for (i=0; i < (Object.keys(response)); i++) {
       // console.log(i)
       console.log('first loop: ' + i);
-        for (u=0; u < (Object.keys(lastDbSnapshot.conversations[u])); u++) {
+        for (u=0; u < (Object.keys(response.conversations[u])); u++) {
           console.log('second loop ' + u);
           //check if every user is in this group (and only every user)
         }
@@ -149,16 +159,14 @@ async function existingConversationCheck(users) {
 async function getNextAvailableConversationID() {
   return new Promise((resolve) => { //establish new promise which can only be returned
     const db = getDatabase(app)
-    readDB('conversations/').then((response) => { //read db, when get a return parse it as 'response'
+    return readDB('conversations/').then((response) => { //read db, when get a return parse it as 'response'
       if (response !== false) { // if response isn't false (ie is valid)
         console.log('result: ' + JSON.stringify(lastDbSnapshot, null, 2)); //debug log
         console.log('returning (objkeys.len): ' + Object.keys(lastDbSnapshot).length) //debug log
-        return(resolve(String(Object.keys(lastDbSnapshot).length))); //returns the number of entries in conversations, and as it's a zero index, that number is what the next free number is.
+        return(Number(resolve(Object.keys(lastDbSnapshot).length + 1))); //this returns the following: a number of the amount of entries (+1, as that's the next available convo). this RESOLVES the promise, so then the function that called it can continue to the .then part.
 
-        //with this; it returns a resolve, meaning that the promise is fulfilled, and then returns the value inside of the resolved to the function that called it. 
-        //very shitty and annoying but is needed to prevent from the before code from running; will also be needed for the existingConversationCheck function.
       } else {
-        console.error("error in readDB('conversations/') path")
+        throw console.error(error); //the throw will reject the promise. 
       }
     });
   });
@@ -189,15 +197,6 @@ document.getElementById("initiateConvoButton").addEventListener('click',function
 
 
 
-async function addConversationToUser() {
-  const db = getDatabase(app);
-  const conversationsRef = ref(db, 'users/' + 'brad' + '/conversations');
-  const newConversationRef = push(conversationsRef);
-  await set(newConversationRef, true);
-}
-
-
-
 //DEMOF FOR HANDLING DB UPDATES
 // readDB('PATH HERE/').then((response) => { //read db, when get a return parse it as 'response'
 //   if (response !== false) {
@@ -208,7 +207,7 @@ async function addConversationToUser() {
 // });
 
 
-async function writecustompath(path, data) {
+async function writecustompath(path, type) {
   const db = getDatabase(app);
   const reference = ref(db, path);
 
@@ -216,7 +215,11 @@ async function writecustompath(path, data) {
   console.log('setting reference')
   await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
     //db name   db content
-    dataHere: data,
+    data: rndm(0,10000)
+    //IMPORTANT: this is stored like an array, and read like an array. etc, if the entire db was stored under the var 'lastDbSnapshot', then ->
+
+    // participants: 'egawhdasd'
+
  
     });
 
