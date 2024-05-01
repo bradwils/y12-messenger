@@ -1,8 +1,0 @@
-REFERENCING STRUCT
-depending on what is reference, you have a diff structure.
-        - lastDbSnapshot always has the last set of data
-                - The path will only ever be '/conversations/' or '/users/'
-                        - If the path is conversations, then from there the hierachy goes convoID -> users[], messages[].
-                                ConvoID is reference as an array within conversations, so it'll be used as lastDbSnapshot[convoID].
-                        - If the path is users, then the hierachy goes userID -> data, conversations (assuming i set it up like this).
-                        
