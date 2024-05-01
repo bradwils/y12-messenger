@@ -1,0 +1,3 @@
+//store conversations as an object, will have no way to delete/leave conversations, just make it so you can hide them locally.
+
+//readDB() functions where if it finds the data (ie the path is valid), it will return it. if the path is invalid, it returns false (boolean).
