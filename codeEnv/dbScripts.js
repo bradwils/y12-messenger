@@ -3,6 +3,9 @@
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
 
+// TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    
+var participants = ['user0']
+// TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    
 
 function rndm(max) {
   return String(Math.floor(Math.random()*max));
@@ -46,6 +49,9 @@ async function writeUserData(userID, displayName) {
 
 async function initiateNewConversation(participants) { //NOT TESTED 
                       //participants needs to be an array
+  if (participants.isArray(participants) == false) {
+    return 'notarray';
+  }
   //format: userID, name, <message content>
 
   //when this is run, have a switch statement on the other side, which depending on what the returned value is will display error (what kind etc) or success.
@@ -54,7 +60,7 @@ async function initiateNewConversation(participants) { //NOT TESTED
   if (await checkUserValidity(participants) == false) { //make sure all invited people are real users (exist)
     return 'invaliduser'
   }
-    if (await existingConversationCheck(participants) == true) { //
+    if (await existingConversationCheck(participants) == true) { //this will be written at a later date
       console.log('conversation already exists, aborting process');
     } else { 
       //IF CONVERSATION DOESN'T EXIST
@@ -71,21 +77,25 @@ async function initiateNewConversation(participants) { //NOT TESTED
       });
 
 
-      for (i in participants) { //for each user
+      for (i in participants) {
+        var userConvos; //for each user, copy the current convo list, convert to arr, push current convoID, write back as str
         const db = getDatabase(app);
         var reference = ref(db, 'users/' + participants[i] + '/') //set reference to their section
                     // users   //   user0           // 
         await readDB('users/' + participants[i] + '/').then((response) => { //read db, when get a return parse it as 'response'
           if (response !== false) {
+            console.log(typeof(response));
+            response = JSON.stringify(response)
+            console.log('parsed response:\n' + response)
+            userConvos = Array(response.conversations) //this does not work.
 
-            currentData = JSON.parse(response) //simplify this process later into one efficient step.
-            // console.log(currentData)
-            currentData.push(convoID) //adds the convoID to the current data (which in this case is the array of conversations)
+            userConvos.push(convoID) //as a result this doesn't either.
+            console.log('just pushed, userConvos: ' + userConvos) //adds the convoID to the current data (which in this case is the array of conversations)
             //now we have updated convo list, we can write it back to the db
             var reference = ref(db, 'users/' + participants[i] + '/')
 
-            set (reference, {
-              Conversations: String(currentData)
+            update (reference, { //trying UPDATE not set
+              conversations23: String(userConvos)
             });
             //updated the user's data with the new conversation IDs, done! (?)
             
@@ -144,11 +154,17 @@ async function sendMessage(conversationID, content, sender, timestamp) {
 async function existingConversationCheck(users) {
   //need to sort user conversation IDs
   var lowest;
+  //get least conversations
+
+
+
+
+
   // for (u=0; u < (Object.keys(response.conversations[u])); u++) sample for going through each part of response
-  return readDB('users/').then((response) => {
+  readDB('users/').then((response) => {
     //find user with least convos
     lowest = 0;
-    for (i=0; i < users; i++) {
+    for (i=0; i < users.length; i++) {
       // for ()
 
 
@@ -175,7 +191,7 @@ async function getNextAvailableConversationID() {
 }
 
 
-async function checkUserValidity(userID) { //MUST await checkUserValidity if calling it
+async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity if calling it
   //CURRENT ISSUE: doesn't run loop cirrectly
   var validity = true;
   if (Array.isArray(userID)) { //if userId is an array
@@ -195,12 +211,14 @@ async function checkUserValidity(userID) { //MUST await checkUserValidity if cal
           validity = false; //is valid
         }
       });
+    } else {
+      console.error('bad input:' + typeof(userID))
     }
   }
   console.log('returned checkUserValidity');
   console.log(validity);
   return validity;//returns true or false depending on whether or not shit is good
-}
+} //works!
 
 
 
@@ -233,7 +251,7 @@ async function writecustompath(path, data) {
   console.log('setting reference')
   await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
     //db name   db content
-    data2: data
+    data: data
     //IMPORTANT: this is stored like an array, and read like an array. etc, if the entire db was stored under the var 'lastDbSnapshot', then ->
 
     // participants: 'egawhdasd'

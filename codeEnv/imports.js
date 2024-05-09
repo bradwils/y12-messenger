@@ -2,6 +2,11 @@
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getDatabase, push, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 
+//SET writes new data to a directory and wipes EVERYTHING ELSE OUT; like deleting everything at a location then writing whatever it has been set to di.
+//UPDATE writes new data to a directory, only overwriting data that it's changing.
+
+//USE UPDATE, NOT SET
+
 const firebaseConfig = { //paste your own
   apiKey: "AIzaSyCTrqAnNkP8OtVe0kdDQti3zT-SJwjx3JI",
   authDomain: "dev59436.firebaseapp.com",
