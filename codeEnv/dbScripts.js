@@ -1,4 +1,4 @@
-const { set } = require("firebase/database");
+// const { set } = require("firebase/database");
 
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
@@ -54,19 +54,17 @@ async function initiateNewConversation(participants) { //NOT TESTED
   if (await checkUserValidity(participants) == false) { //make sure all invited people are real users (exist)
     return 'invaliduser'
   }
-    if (await existingConversationCheck(participants) == true) {
+    if (await existingConversationCheck(participants) == true) { //
       console.log('conversation already exists, aborting process');
-    } else { //write new conversation data
-      console.log('convo does not exist')
+    } else { 
+      //IF CONVERSATION DOESN'T EXIST
+
 
       const db = getDatabase(app);
       // var reference = ref(db, 'conversations/' + getNextAvailableConversationID() + '/' )
       convoID = await getNextAvailableConversationID();
-      console.log('id: ' + id)
-      var reference = ref(db, 'conversations/' + id)
-
-      //write participant IDs into an array
-      //write check; if participants is already an arrray, do as already below. otherwise, split and then store array
+      console.log('id: ' + convoID) //awaits for convoID before running
+      var reference = ref(db, 'conversations/' + convoID)
       
       await set(reference, {
         Participants: String(participants) //in the participant section of that conversation, write all of the participants.
@@ -76,7 +74,7 @@ async function initiateNewConversation(participants) { //NOT TESTED
       for (i in participants) { //for each user
         const db = getDatabase(app);
         var reference = ref(db, 'users/' + participants[i] + '/') //set reference to their section
-
+                    // users   //   user0           // 
         await readDB('users/' + participants[i] + '/').then((response) => { //read db, when get a return parse it as 'response'
           if (response !== false) {
 
@@ -98,6 +96,7 @@ async function initiateNewConversation(participants) { //NOT TESTED
 
       }
     }
+    alert('finished')
 };
 
 
@@ -120,6 +119,8 @@ function readDB(path) { //path should be used like this:
 }
 
 
+
+
 //readDB, !snapshot.exists() works correctly, need to figure out how to error it or some shit.
 
 
@@ -140,20 +141,21 @@ async function sendMessage(conversationID, content, sender, timestamp) {
 
 // sendMessage(<conversationID>, <content>)
 
-async function existingConversationCheck(users) { //unfinished
-  return readDB('conversations/').then((response) => { //under construction
-    // console.log(response[10].userbrad) //read db, when get a return parse it as 'response'
-    for (i=0; i < (Object.keys(response)); i++) {
-      // console.log(i)
-      console.log('first loop: ' + i);
-        for (u=0; u < (Object.keys(response.conversations[u])); u++) {
-          console.log('second loop ' + u);
-          //check if every user is in this group (and only every user)
-        }
+async function existingConversationCheck(users) {
+  //need to sort user conversation IDs
+  var lowest;
+  // for (u=0; u < (Object.keys(response.conversations[u])); u++) sample for going through each part of response
+  return readDB('users/').then((response) => {
+    //find user with least convos
+    lowest = 0;
+    for (i=0; i < users; i++) {
+      // for ()
+
+
+        
+
     }
-    //returns the number of entries in conversations, and as it's a zero index, that number is what the next free number is.
-    return false; //this remains here until the code is finalised.
-  });
+});
 }
 
 async function getNextAvailableConversationID() {
@@ -173,15 +175,31 @@ async function getNextAvailableConversationID() {
 }
 
 
-async function checkUserValidity(userID) { //
-  return readDB('users/' + userID + '/').then((response) => { //read db, when get a return parse it as 'response'
-    if (response !== false) { //if response has data (ie the request was valid, user exists)
-      return true; //is valid
-    } else {
-      return false; //is not valid
+async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity if calling it
+  //CURRENT ISSUE: doesn't run loop cirrectly
+  var validity = true;
+  if (Array.isArray(userID)) { //if userId is an array
+    for (i=0; i < userID.length; i++) { //for each in userID
+      console.log('reading' + userID[i]);
+       await readDB('users/' + userID[i] + '/').then((response) => { //attempt to read that directory
+        if (response == false) { //if response is invalid
+          validity = false; //is valid
+        }
+      });
+      console.log('i: ' + i + ' userID.length: ' + userID.length)
     }
-  });
-
+  } else { //for strings (works)
+    if (typeof userID == "string") {
+      await readDB('users/' + userID + '/').then((response) => { //attempt to read that directory
+        if (response == false) { //if response is invalid
+          validity = false; //is valid
+        }
+      });
+    }
+  }
+  console.log('returned checkUserValidity');
+  console.log(validity);
+  return validity;//returns true or false depending on whether or not shit is good
 }
 
 
@@ -207,7 +225,7 @@ document.getElementById("initiateConvoButton").addEventListener('click',function
 // });
 
 
-async function writecustompath(path, type) {
+async function writecustompath(path, data) {
   const db = getDatabase(app);
   const reference = ref(db, path);
 
@@ -215,7 +233,7 @@ async function writecustompath(path, type) {
   console.log('setting reference')
   await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
     //db name   db content
-    data: rndm(0,10000)
+    data2: data
     //IMPORTANT: this is stored like an array, and read like an array. etc, if the entire db was stored under the var 'lastDbSnapshot', then ->
 
     // participants: 'egawhdasd'
@@ -225,4 +243,16 @@ async function writecustompath(path, type) {
 
   //process.exit;
   console.log('user data written');
+  }
+
+
+
+  async function setTempToData(path) //request data from database using readDB(), and set it to a data named temp
+  {
+    await readDB(path + '/').then((response) => { //read db, when get a return parse it as 'response'
+      if (response !== false) {
+        temp = response;
+        console.log('temp set to data');
+      }
+    });
   }
