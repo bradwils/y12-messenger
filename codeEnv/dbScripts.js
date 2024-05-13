@@ -82,23 +82,9 @@ async function initiateNewConversation(participants) { //NOT TESTED
           //read db, when get a return parse it as 'response'
           if (response !== false) {
             console.log('result: ' + JSON.stringify(response, null, 2)); //debug log
-
-
-
-
-
-
-            //convert this into a try catch
-
-            //if there are no existing convos, set the next convo space to 1
-          //   if (((response.conversations).length) !== typeof(Number)) { //if the length of their current conversations isn't a number (ie doesn't exist, 0 convos & the folder does not exist)
-          //     nextConvoSpace = 1;
-          //   } else {
-          //   nextConvoSpace = (response.conversations).length + 1 //if existing convos, get the amount adn then add for the next convo
-          // }
-            
-
           try {
+            console.log('length stuff:/n/n/n' + response.conversations.length) //this is being x2'd for some reason. this reason is because it's counting the amount of keys in the object, not the amount of entries in the array.
+            //this means that i need to get the amount of entries in an object instead of the amount of keys.
             nextConvoSpace = (response.conversations).length + 1 //if existing convos, get the amount adn then add for the next convo
           } catch {
             console.log('\n\ncaught\n\n')
