@@ -21,6 +21,9 @@ async function setTempToData(path) //request data from database using readDB(), 
   });
 }
 
+// remember; with objects, it's a 1 index not 0 index
+
+
 //If i request a readDB of 'users/user0', which is parsed as 'response' I can access data like this:
 // reponse.data = the data within the field named 'data'. no parsing required.
 

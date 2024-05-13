@@ -1,5 +1,4 @@
 // const { set } = require("firebase/database");
-
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
 
@@ -24,7 +23,7 @@ async function writeUserData(userID, displayName) {
 
   const db = getDatabase(app);
   const reference = ref(db, 'users/' + userID + '/data/');
-  // console.log(reference)
+  //console.log(reference)
 
   
   checkUserValidity(userID).then(async (response) => { //read db, when get a return parse it as 'response'
@@ -37,7 +36,7 @@ async function writeUserData(userID, displayName) {
         });
     
       //process.exit;
-      console.log('user data written');
+      //console.log('user data written');
       
     } else {
       return ('user already exists');
@@ -49,7 +48,7 @@ async function writeUserData(userID, displayName) {
 
 async function initiateNewConversation(participants) { //NOT TESTED 
                       //participants needs to be an array
-  if (participants.isArray(participants) == false) {
+  if (Array.isArray(participants) == false) {
     return 'notarray';
   }
   //format: userID, name, <message content>
@@ -69,36 +68,60 @@ async function initiateNewConversation(participants) { //NOT TESTED
       const db = getDatabase(app);
       // var reference = ref(db, 'conversations/' + getNextAvailableConversationID() + '/' )
       convoID = await getNextAvailableConversationID();
-      console.log('id: ' + convoID) //awaits for convoID before running
+      // console.log('id: ' + convoID) //awaits for convoID before running
       var reference = ref(db, 'conversations/' + convoID)
-      
-      await set(reference, {
-        Participants: String(participants) //in the participant section of that conversation, write all of the participants.
-      });
 
 
-      for (i in participants) {
-        var userConvos; //for each user, copy the current convo list, convert to arr, push current convoID, write back as str
+      for (i = 0; i < participants.length; i++) {
+        console.log('participantsLoop i: ' + i) //for each person, append the new convoID to their conversations list.
         const db = getDatabase(app);
-        var reference = ref(db, 'users/' + participants[i] + '/') //set reference to their section
                     // users   //   user0           // 
-        await readDB('users/' + participants[i] + '/').then((response) => { //read db, when get a return parse it as 'response'
+        await readDB('users/' + participants[i] + '/').then((response) => {
+
+          //
+          //read db, when get a return parse it as 'response'
           if (response !== false) {
-            console.log(typeof(response));
-            response = JSON.stringify(response)
-            console.log('parsed response:\n' + response)
-            userConvos = Array(response.conversations) //this does not work.
+            console.log('result: ' + JSON.stringify(response, null, 2)); //debug log
 
-            userConvos.push(convoID) //as a result this doesn't either.
-            console.log('just pushed, userConvos: ' + userConvos) //adds the convoID to the current data (which in this case is the array of conversations)
-            //now we have updated convo list, we can write it back to the db
-            var reference = ref(db, 'users/' + participants[i] + '/')
 
-            update (reference, { //trying UPDATE not set
-              conversations23: String(userConvos)
-            });
-            //updated the user's data with the new conversation IDs, done! (?)
+
+
+
+
+            //convert this into a try catch
+
+            //if there are no existing convos, set the next convo space to 1
+          //   if (((response.conversations).length) !== typeof(Number)) { //if the length of their current conversations isn't a number (ie doesn't exist, 0 convos & the folder does not exist)
+          //     nextConvoSpace = 1;
+          //   } else {
+          //   nextConvoSpace = (response.conversations).length + 1 //if existing convos, get the amount adn then add for the next convo
+          // }
             
+
+          try {
+            nextConvoSpace = (response.conversations).length + 1 //if existing convos, get the amount adn then add for the next convo
+          } catch {
+            console.log('\n\ncaught\n\n')
+            nextConvoSpace = 1;
+          } 
+
+
+
+
+
+
+
+
+
+            var reference = ref(db, 'users/' + participants[i] + '/conversations/');
+            update(reference, {
+              [nextConvoSpace]: convoID, //nextConvoSpace seems to always go up by two; not sure why. otherwise, works! (as far as i've tested it writes in the write spots.)
+              //need to update convo folder too
+            })
+
+
+            //updated the user's data with the new conversation IDs, done! (?)
+            console.log('finished await loop')
           }
         });        //updated conversation ID to be old convos + new
 
@@ -151,7 +174,7 @@ async function sendMessage(conversationID, content, sender, timestamp) {
 
 // sendMessage(<conversationID>, <content>)
 
-async function existingConversationCheck(users) {
+async function existingConversationCheck(users) { //check notability diagram.
   //need to sort user conversation IDs
   var lowest;
   //get least conversations
@@ -174,7 +197,7 @@ async function existingConversationCheck(users) {
 });
 }
 
-async function getNextAvailableConversationID() {
+async function getNextAvailableConversationID() { //this works.... perfectly !?
   return new Promise((resolve) => { //establish new promise which can only be returned
     const db = getDatabase(app)
     return readDB('conversations/').then((response) => { //read db, when get a return parse it as 'response'
@@ -196,13 +219,13 @@ async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity 
   var validity = true;
   if (Array.isArray(userID)) { //if userId is an array
     for (i=0; i < userID.length; i++) { //for each in userID
-      console.log('reading' + userID[i]);
+      //console.log('reading' + userID[i]);
        await readDB('users/' + userID[i] + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if response is invalid
           validity = false; //is valid
         }
       });
-      console.log('i: ' + i + ' userID.length: ' + userID.length)
+      //console.log('i: ' + i + ' userID.length: ' + userID.length)
     }
   } else { //for strings (works)
     if (typeof userID == "string") {
@@ -215,21 +238,10 @@ async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity 
       console.error('bad input:' + typeof(userID))
     }
   }
-  console.log('returned checkUserValidity');
-  console.log(validity);
+  //console.log('returned checkUserValidity');
+  //console.log(validity);
   return validity;//returns true or false depending on whether or not shit is good
 } //works!
-
-
-
-//FOR TESTING, HTML CODE
-
-document.getElementById("initiateConvoButton").addEventListener('click',function ()
-{
- initiateNewConversation(((document.getElementById('initiateNewConversationParticipants').value).split(','))) //runs convo with paramter being all participants in textarea.
- //validation code to see State field is mandatory.  
-}  ); 
-
 
 
 
@@ -243,15 +255,15 @@ document.getElementById("initiateConvoButton").addEventListener('click',function
 // });
 
 
-async function writecustompath(path, data) {
+async function writecustompath(path, dataName, data) {
   const db = getDatabase(app);
   const reference = ref(db, path);
 
 
-  console.log('setting reference')
-  await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
+  //console.log('setting reference')
+  await update(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
     //db name   db content
-    data: data
+    [dataName]: data
     //IMPORTANT: this is stored like an array, and read like an array. etc, if the entire db was stored under the var 'lastDbSnapshot', then ->
 
     // participants: 'egawhdasd'
@@ -260,7 +272,7 @@ async function writecustompath(path, data) {
     });
 
   //process.exit;
-  console.log('user data written');
+  //console.log('user data written');
   }
 
 
@@ -270,7 +282,7 @@ async function writecustompath(path, data) {
     await readDB(path + '/').then((response) => { //read db, when get a return parse it as 'response'
       if (response !== false) {
         temp = response;
-        console.log('temp set to data');
+        //console.log('temp set to data');
       }
     });
   }
