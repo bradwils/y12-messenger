@@ -1,10 +1,8 @@
+// const { getDatabase } = require("firebase/database");
+
 // const { set } = require("firebase/database");
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
-
-// TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    
-var participants = ['user0']
-// TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    TEMPORARY    
 
 function rndm(max) {
   return String(Math.floor(Math.random()*max));
@@ -56,20 +54,30 @@ async function initiateNewConversation(participants) { //NOT TESTED
   //when this is run, have a switch statement on the other side, which depending on what the returned value is will display error (what kind etc) or success.
 
 
-  if (await checkUserValidity(participants) == false) { //make sure all invited people are real users (exist)
+  
+
+
+  if (await checkUserValidity(participants) == false) { //make sure all invited people are real users (exist). 
     return 'invaliduser'
   }
     if (await existingConversationCheck(participants) == true) { //this will be written at a later date
       console.log('conversation already exists, aborting process');
     } else { 
-      //IF CONVERSATION DOESN'T EXIST
+    //existing convo doesn't exist; users are valid; now we can write the convo.
+
+    const db = getDatabase(app);
+    convoID = await getNextAvailableConversationID();
+
+    //write convo data to new convo : 
+    writeNewConversation(participants, convoID) //convoID may not be finished from line 69 before being parsed?
+
+    //write convo data to users :
 
 
-      const db = getDatabase(app);
-      // var reference = ref(db, 'conversations/' + getNextAvailableConversationID() + '/' )
-      convoID = await getNextAvailableConversationID();
-      // console.log('id: ' + convoID) //awaits for convoID before running
+
       var reference = ref(db, 'conversations/' + convoID)
+
+      writeNewConversation(participants) //write new conversation data (participants, etc)
 
 
       for (i = 0; i < participants.length; i++) {
@@ -81,24 +89,13 @@ async function initiateNewConversation(participants) { //NOT TESTED
           //
           //read db, when get a return parse it as 'response'
           if (response !== false) {
-            console.log('result: ' + JSON.stringify(response, null, 2)); //debug log
           try {
-            console.log('length stuff:/n/n/n' + response.conversations.length) //this is being x2'd for some reason. this reason is because it's counting the amount of keys in the object, not the amount of entries in the array.
+            //this is being x2'd for some reason. this reason is because it's counting the amount of keys in the object, not the amount of entries in the array.
             //this means that i need to get the amount of entries in an object instead of the amount of keys.
-            nextConvoSpace = (response.conversations).length + 1 //if existing convos, get the amount adn then add for the next convo
+            nextConvoSpace = (Object.keys(response.conversations).length) + 1; //if existing convos, get the amount adn then add for the next convo
           } catch {
-            console.log('\n\ncaught\n\n')
             nextConvoSpace = 1;
           } 
-
-
-
-
-
-
-
-
-
             var reference = ref(db, 'users/' + participants[i] + '/conversations/');
             update(reference, {
               [nextConvoSpace]: convoID, //nextConvoSpace seems to always go up by two; not sure why. otherwise, works! (as far as i've tested it writes in the write spots.)
@@ -108,6 +105,8 @@ async function initiateNewConversation(participants) { //NOT TESTED
 
             //updated the user's data with the new conversation IDs, done! (?)
             console.log('finished await loop')
+          } else {
+            console.log('badpath')
           }
         });        //updated conversation ID to be old convos + new
 
@@ -260,6 +259,30 @@ async function writecustompath(path, dataName, data) {
   //process.exit;
   //console.log('user data written');
   }
+
+  async function writeNewConversation(participants, id) { //id is undefined; why?
+    console.log(participants + '\n' + id)
+    //participants needs to be array, id needs to be string
+    //for convo we need:
+    // (d = data, f = folder, #f = made as needed
+    //    overarching folder with ID
+    //        [d] participants
+    //        [f] messages
+                //FOR EACH MESSAGE (address in send msg func)
+    //          [#f] messageID
+    //            [d] content
+    //            [d] owner
+    //            [d] timestamp
+    const db = getDatabase(app);
+    var reference = ref(db, 'conversations/' + id + '/');
+    console.log('setting ref')
+    await set(reference, {
+      participants: participants, //nextConvoSpace seems to always go up by two; not sure why. otherwise, works! (as far as i've tested it writes in the write spots.)
+      //need to update convo folder too
+    })
+  }
+
+
 
 
 
