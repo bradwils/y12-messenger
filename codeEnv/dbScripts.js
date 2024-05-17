@@ -66,7 +66,13 @@ async function initiateNewConversation(participants) { //NOT TESTED
     //existing convo doesn't exist; users are valid; now we can write the convo.
 
     const db = getDatabase(app);
-    convoID = await getNextAvailableConversationID();
+    convoID = undefined; //sets to undefined so it can be used in the while loop
+    convoID = await getNextAvailableConversationID()
+
+    while (convoID === undefined) {
+      setTimeout(() => {}, 100); //waits 100ms before checking if convoID is defined again
+    }
+    console.log('convoID: ' + convoID)
 
     //write convo data to new convo : 
     writeNewConversation(participants, convoID) //convoID may not be finished from line 69 before being parsed?
@@ -77,7 +83,7 @@ async function initiateNewConversation(participants) { //NOT TESTED
 
       var reference = ref(db, 'conversations/' + convoID)
 
-      writeNewConversation(participants) //write new conversation data (participants, etc)
+      // writeNewConversation(participants) //why is this here? it's just making it be called twice! FUCK!!!! immortalized.
 
 
       for (i = 0; i < participants.length; i++) {
@@ -192,6 +198,7 @@ async function getNextAvailableConversationID() { //this works.... perfectly !?
         return(Number(resolve(Object.keys(lastDbSnapshot).length + 1))); //this returns the following: a number of the amount of entries (+1, as that's the next available convo). this RESOLVES the promise, so then the function that called it can continue to the .then part.
 
       } else {
+        return(0) //if false, there's no convo folder (usually from manual testing, mb)
         throw console.error(error); //the throw will reject the promise. 
       }
     });
