@@ -151,6 +151,7 @@ function readDB(path) { //path should be used like this:
 
 
 async function sendMessage(conversationID, content, sender, timestamp) { 
+  //what do we want this function to do?
   //write message data
   const db = getDatabase(app);
   var reference = ref(db, 'conversations/' + conversationID + '/messages/' + 'unique message ID');

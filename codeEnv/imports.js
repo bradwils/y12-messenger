@@ -1,6 +1,7 @@
 //make imported functions globally accessable
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
 import { getDatabase, push, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getAuth } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js'
 
 //SET writes new data to a directory and wipes EVERYTHING ELSE OUT; like deleting everything at a location then writing whatever it has been set to di.
 //UPDATE writes new data to a directory, only overwriting data that it's changing.
@@ -20,17 +21,19 @@ const firebaseConfig = { //paste your own
 //by attatching all of these functions to the window object, they can be accessed from anywhere in the code. global scope. can be used as ref, set, etc (not need for window.ref, window.set) )
 window.initializeApp = initializeApp; 
 
-window.getDatabase = getDatabase; 28
+window.getDatabase = getDatabase;
 window.ref = ref;
 window.set = set;
 window.get = get;
 window.child = child;
 window.push = push;
 window.update = update;
+window.getAuth = getAuth;
 
 
 window.firebaseConfig = firebaseConfig;
 
 window.app = initializeApp(firebaseConfig);
+window.auth = getAuth(app) //auth works
 
 console.log('imported') 
