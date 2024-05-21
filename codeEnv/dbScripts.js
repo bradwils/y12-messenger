@@ -303,3 +303,41 @@ async function writecustompath(path, dataName, data) {
       }
     });
   }
+
+  function setup() {
+    auth.languageCode = 'en';
+  }
+
+  //FUNCTIONS FOR BELOW
+  var signupCredential;
+  var signupToken
+  var signupUser;
+  var errorcode;
+  var errorMessage;
+  var email;
+  var credential;
+   //from https://firebase.google.com/docs/auth/web/google-signin?authuser=1
+  //  signInWithPopup(???, GoogleAuthProvider)
+async function a() {
+  signInWithPopup(Auth, new GoogleAuthProvider())
+    .then((result) => {
+      // This gives you a Google Access Token. You can use it to access the Google API.
+      signupCredential = GoogleAuthProvider.credentialFromResult(result);
+      signupToken = credential.accessToken;
+      // The signed-in user info.
+      signupUser = result.user;
+      console.log('user: ' + user.Stringify + '\n token: ' + token + '\n credential: ' + credential.Stringify)
+      // IdP data available using getAdditionalUserInfo(result)
+      // ...
+    }).catch((error) => {
+      console.log(error)
+      // Handle Errors here.
+      errorCode = error.code;
+      errorMessage = error.message;
+      // The email of the user's account used.
+      email = error.customData.email;
+      // The AuthCredential type that was used.
+      credential = GoogleAuthProvider.credentialFromError(error);
+      // ...
+    });
+}
