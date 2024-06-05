@@ -1,0 +1,30 @@
+#conversationsDiv {
+    width: 25vw;
+    height: 90vh;
+    border: 2px solid pink;
+    overflow: scroll;
+
+}
+
+#conversationListBox {
+    display: flex;
+    border: 1px solid black;
+    width: 100%;
+    height: 10%;
+    background-color: aliceblue;
+}
+#conversationListBoxPhoto {
+    /* border: 1px solid green; */
+    /* float: left;  this causes issues where it sides side by side instead of properly within the parent dev */
+    /* width: 30%; */
+    height: 100%;
+    aspect-ratio: 1/1;
+    background-color: antiquewhite;
+
+}
+
+#conversationListBoxText {
+    flex-grow: 1;
+    /* border: 1px solid blue; */
+    background-color:aqua;
+}
