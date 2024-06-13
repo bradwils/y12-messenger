@@ -1,17 +1,18 @@
-#conversationsDiv {
+#conversationsContainer {
     width: 25vw;
-    height: 90vh;
-    border: 2px solid pink;
+    height: 100%;
+    background-color: rgb(220, 241, 245);
     overflow: scroll;
+    display:flex;
 
 }
 
 #conversationListBox {
     display: flex;
-    border: 1px solid black;
+    border: 1px solid rgb(191, 162, 242);
     width: 100%;
     height: 10%;
-    background-color: aliceblue;
+    /* background-color: rgb(191, 162, 242);            this can't be seen as the photobox & textbox cover it up. */
 }
 #conversationListBoxPhoto {
     /* border: 1px solid green; */
@@ -27,4 +28,154 @@
     flex-grow: 1;
     /* border: 1px solid blue; */
     background-color:aqua;
+}
+
+/* MessagesContainer needs to take up 100% of height. Within this, 90% is the messagesConversationContentContainer and another 10% is the messagesConversationSendContainer */
+
+#messagesContainer {
+    background-color: #dedede;
+    flex: auto;
+    height: 100%;
+    flex: 1;
+    /* overflow: scroll; */
+}
+
+#messagesConversationContentContainer {
+    /* flex: auto; */
+    background-color: gold;
+    flex: 1;
+    height: 90%;
+
+    overflow: scroll;
+
+}
+
+#messagesConversationSendContainer {
+    float:left ;
+    background-color: greenyellow;
+    height: 10%;
+    flex: 1;
+}
+
+
+#container {
+    /* border: 1px solid grey; */
+    margin: 0;
+    height: 100vh;
+    /* overflow: hidden; */
+    display: flex;
+
+}
+
+.incomingMessage {
+    max-width: 70%;
+
+    background-color: white;
+
+    box-shadow: -5px 5px #ededed;
+
+    float: left;
+
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-right-radius: 15px;
+    border: 1px solid brown;
+
+    padding-left: 1rem;
+    padding-right:1rem;
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0px;
+}
+
+.incomingMessageContainer {
+    float: left;
+}
+
+.outgoingMessage {
+    max-width: 70%;
+
+    background-color: white;
+
+    box-shadow: 5px 5px #ededed;
+
+    border-top-left-radius: 15px;
+    border-top-right-radius: 15px;
+    border-bottom-left-radius: 15px;
+    border: 1px solid brown;
+
+    float: right;
+
+    padding-left: 1rem;
+    padding-right:1rem;
+    padding-top:0.5rem;
+    padding-bottom:0.5rem;
+
+    margin-left: 1rem;
+    margin-right: 1rem;
+    margin-top: 1rem;
+    margin-bottom: 0px;}
+
+.outgoingMessageContainer {
+    float: right;
+}
+
+.messageAuthor {
+    float: inherit;
+    margin-top: .5rem;
+    margin-left: 1rem;
+    margin-right: 1rem;
+}
+
+.clearFloat {
+    clear: both;
+}
+
+    /* 
+
+    What is clearing the float?
+    Float means that the element is taken out of the regular document structure and into it's own layer, floating on one side of the document.
+    When floating elements weird things can happen with formatting, like overlapping out of divs and children not being properly contained/followed on.
+    Clearing the float is a div that clears both sides (so floating objects left and right), to ensure that it sits underneath all of those elements.
+    Any following elements will then sit under this div (which is invisible), and so it sits under the floating elements removing any issues.
+    */
+
+
+
+
+#statusContainer {
+    width: 25vw;
+    height: 5vh;
+    background-color: beige;
+    overflow: scroll;
+    /* display:flex; */
+
+}
+
+.container::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
+
+
+  /* 7.5% margin, 70% box, 5% margin, 10% submit button, 7.5% margin */
+#sendMessageTextbox {
+    margin-top: 15%;
+    height: 70%;
+    width: 70%;
+    background-color: aquamarine;
+    margin-left: 10%;
+    margin-right: 2.5%;
+    margin-bottom: 15%;
+}
+
+/* i fucked something up witbh the hieit or width idk fix after */
+
+#sendMessageContentButton{  /* copy setup done with convolist entry */
+    flex-grow: 1;
 }
