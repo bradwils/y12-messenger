@@ -1,3 +1,8 @@
+body {
+    overflow:hidden;
+    margin: 0px;
+}
+
 #conversationsContainer {
     width: 25vw;
     height: 100%;
@@ -54,7 +59,9 @@
     float:left ;
     background-color: greenyellow;
     height: 10%;
-    flex: 1;
+    width: 100%;
+    display: flex;
+    /* flex: 1; */
 }
 
 
@@ -160,22 +167,40 @@
     content: "";
     display: table;
     clear: both;
-  }
+}
 
 
   /* 7.5% margin, 70% box, 5% margin, 10% submit button, 7.5% margin */
-#sendMessageTextbox {
-    margin-top: 15%;
-    height: 70%;
+#sendMessageTextboxContainer {
+    /* this is for the textbox container */
+    margin-top: 2.5%;
     width: 70%;
-    background-color: aquamarine;
-    margin-left: 10%;
-    margin-right: 2.5%;
-    margin-bottom: 15%;
+    /* background-color: aquamarine; */
+    margin-left: 5%;
+    height: 10%
+    /* margin-right: 2.5%; */
 }
 
 /* i fucked something up witbh the hieit or width idk fix after */
 
 #sendMessageContentButton{  /* copy setup done with convolist entry */
-    flex-grow: 1;
+    float: right;
+    width: 10%;
+    height: 100%;
+    margin-left: 7.5%;
+    margin-right: 7.5%;
+    margin-top: 2.5%
 }
+
+#sendMessageTextarea {
+    /* this is for the textbox */
+    width: 100%;
+    resize: none;
+    display: inline;
+}
+
+#sendButton {
+    height: 50%;
+    width: 100%
+}
+
