@@ -23,7 +23,7 @@ async function writeUserData(userID, displayName, googleUUID) {
 
 
   const db = getDatabase(app);
-  const reference = ref(db, 'users/' + userID + '/data/');
+  const reference = ref(db, 'users/' + userID);
   //console.log(reference)
 
 
@@ -33,10 +33,9 @@ async function writeUserData(userID, displayName, googleUUID) {
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
         //db name   db content
         Name: displayName,
-        loginKey: rndm(10000)
+        loginKey: UUID, //the UUID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
+        onlineBool: true, 
       });
-
-      //process.exit;
       //console.log('user data written');
 
     } else {
@@ -74,21 +73,20 @@ async function initiateNewConversation(participants) { //works? needs thorough t
 
     while (convoID === undefined) {
       setTimeout(() => {}, 100); //waits 100ms before checking if convoID is defined again
+      console.log('timeout while convoID undefined')
     }
     console.log('convoID: ' + convoID)
 
     //write convo data to new convo : 
-    writeNewConversation(participants, convoID) //convoID may not be finished from line 69 before being parsed?
-
-    //write convo data to users :
-
-
-
-    var reference = ref(db, 'conversations/' + convoID)
+    try {
+      writeNewConversation(participants, convoID) //convoID may not be finished from line 69 before being parsed?
+    } catch (error) {
+      console.error(error)
+    }
 
     // writeNewConversation(participants) //why is this here? it's just making it be called twice! FUCK!!!! immortalized.
 
-
+    //now, we write the convo data to each user
     for (i = 0; i < participants.length; i++) {
       console.log('participantsLoop i: ' + i) //for each person, append the new convoID to their conversations list.
       const db = getDatabase(app);
@@ -101,7 +99,7 @@ async function initiateNewConversation(participants) { //works? needs thorough t
           try {
             //this is being x2'd for some reason. this reason is because it's counting the amount of keys in the object, not the amount of entries in the array.
             //this means that i need to get the amount of entries in an object instead of the amount of keys.
-            nextConvoSpace = (Object.keys(response.conversations).length) + 1; //if existing convos, get the amount adn then add for the next convo
+            nextConvoSpace = (Object.keys(response.conversations).length) + 1; //if existing convos, get the amount and then add for the next convo
           } catch {
             nextConvoSpace = 1;
           }
@@ -249,16 +247,6 @@ async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity 
 
 
 
-//DEMOF FOR HANDLING DB UPDATES
-// readDB('PATH HERE/').then((response) => { //read db, when get a return parse it as 'response'
-//   if (response !== false) {
-
-//     //run code here
-
-//   }
-// });
-
-
 async function writecustompath(path, dataName, data) {
   const db = getDatabase(app);
   const reference = ref(db, path);
@@ -280,25 +268,23 @@ async function writecustompath(path, dataName, data) {
 }
 
 async function writeNewConversation(participants, id) { //id is undefined; why?
-  console.log(participants + '\n' + id)
+
+  // console.log(participants + '\n' + id)
   //participants needs to be array, id needs to be string
   //for convo we need:
   // (d = data, f = folder, #f = made as needed
   //    overarching folder with ID
-  //        [d] participants
-  //        [f] messages
-  //FOR EACH MESSAGE (address in send msg func)
-  //          [#f] messageID
-  //            [d] content
-  //            [d] owner
-  //            [d] timestamp
+  //      f: participants -> MADE INITIALLY
+  //        d: participants (array) -> SET INITIALLY
+  //      f: messages -> MADE LATER (not in this func)
+  //        #f: timestamp
+  //          d: content
+  //          d: owner
   const db = getDatabase(app);
   var reference = ref(db, 'conversations/' + id + '/');
-  // conversations/1/f
   console.log('setting ref')
   await set(reference, {
-    participants: participants, //nextConvoSpace seems to always go up by two; not sure why. otherwise, works! (as far as i've tested it writes in the write spots.)
-    //need to update convo folder too
+    participants: participants, // set participants; messages are done seperately.
   })
 }
 
@@ -333,23 +319,23 @@ async function userSignInPopupFunction() {
   signInWithPopup(Auth, new GoogleAuthProvider())
     .then((result) => {
       // This gives you a Google Access Token. You can use it to access the Google API.
-      signupCredential = GoogleAuthProvider.credentialFromResult(result);
-      signupToken = signupCredential.accessToken;
+      signupCredential = GoogleAuthProvider.credentialFromResult(result); //PROBABLY NOT NEEDED
+      signupToken = signupCredential.accessToken; //PROBABLY NOT NEEDED
       // The signed-in user info.
       signupUser = result.user; //this has most of the useable data
-      loginEmail = result.user.email;
-      UUID = result.user.uid;
+      loginEmail = result.user.email; //NOT NEEDED
+      UUID = result.user.uid; //NEEDED
       console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
       //form testing; this createdAt data is about 30-40s behind from Date.now().
       //if account created within 60s ( + buffer ) of current time, it's a new account.
       //so thats 100000ms
       if (Date.now() - signupUser.metadata.createdAt < 100000) { //if the account's creation time is less than 100 (60-70 realtime) seconds to the current time.
         //new user
-        onboard = true;
+        welcomeNewUser()
       } else {
         //existing user
+        welcomeBack()
       }
-      welcome(onboard)
 
       // ...
     }).catch((error) => {
@@ -358,7 +344,7 @@ async function userSignInPopupFunction() {
       errorCode = error.code;
       errorMessage = error.message;
       // The email of the user's account used.
-      email = error.customData.email;
+      // email = error.customData.email;
       // The AuthCredential type that was used.
       credential = GoogleAuthProvider.credentialFromError(error);
       // ...
@@ -366,12 +352,16 @@ async function userSignInPopupFunction() {
 }
 
 
-function welcome(newUser) {
-  if (newUser == true) {
-    //create new db entry for user
-    //redirect to onboarding screen.
-  } else {
+function welcomeBack() {
+console.log('user exists')
     //popup successful login, and display sign out button on HTML
-  }
+    //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
+function welcomeNewUser() {
+    //entry form for display name 
+}
+
+function conversationLoader(convoID) {
+
+}
