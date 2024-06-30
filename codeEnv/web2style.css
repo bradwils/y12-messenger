@@ -10,7 +10,7 @@ body {
     overflow: scroll;
     display:flex;
 
-}
+}   
 
 #conversationListBox {
     display: flex;

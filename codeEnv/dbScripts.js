@@ -152,6 +152,8 @@ function readDB(path) { //path should be used like this:
 
 
 async function sendMessage(conversationID, content, sender, timestamp) {
+  //by storing the data as a folder, with the timestamp as the name, the data is already oredered, as data is apended lower down in the structure as it's written, which will be at a time later than the previous data (since you can't go back in time).
+  
   content = String(content) //ensure it's a string
   
   //what do we want this function to do?
@@ -163,6 +165,8 @@ async function sendMessage(conversationID, content, sender, timestamp) {
   }).catch((error) => {
     console.error('error while sending message, ' + error)
   })
+  //promise never gets resolved here not sure why
+  console.log('sent')
   //process.exit;
 }
 
