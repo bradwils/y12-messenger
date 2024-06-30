@@ -1,5 +1,7 @@
 //div with id messagesConversationContentContainer can be deleted to clear all chats. then, we can create the div again (with the same ID so it inherits css), before then rendering all elements within that div. so we can delete the div every time we're done with it.
 
+
+var view;
 //elements struct 
     //DIV-ID: messagesContainer (do not touch)
         //DIV-ID: messagesConversationContentContainer this is the one that gets deleted for new conversations
@@ -80,28 +82,33 @@ function func(convoID) { //maybe make into a loop later?
 
                     //now for the outgoingMessage (class)
 
+                    mcccContainer = document.getElementById("messagesConversationContentContainer");
+                    
                     var newOutgoingMessage = document.createElement("div");
                     newOutgoingMessage.className = "outgoingMessage";
 
-                    allOutgoingMessageContainers = document.querySelectorAll('outgoingMessageContainer');
+                    var allOutgoingMessageContainers = document.querySelectorAll('.outgoingMessageContainer');
+                    view = allOutgoingMessageContainers
+                     //needs dot to signify class. also remember; this is an array!
 
-                    if (allOutgoingMessageContainers.length > 0) { //valid
+                    if (allOutgoingMessageContainers.length > 0) { //if there are previous outgoing messages
                         allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('afterbegin', newOutgoingMessage) //for the last outgoingMessageContainer, insert the newOutgoingMessage at the start within it. 
                     } else { //there are no existing outgoingMessageContainers (no outgoing messages at all), so we'll just add it to the end of the messagesConversationContentContainer.
-                        messagesContainer.insertAdjacentElement('beforeend', newOutgoingMessage) //and inserts the new contentcontainer after it
-                    }
+                        allOutgoingMessageContainers[0].appendChild(newOutgoingMessage) //and inserts the new contentcontainer after it
+                        //i believe this is wrong; this shouldn't happen; we only get to this spot in the code if the current message = our message.
+                    }   //for 
 
-                    //now for the text & clearfloat
-                    var newP = document.createElement("p");
-                    try {
-                        newP.innerHTML = messages[messageNumber[i]].Content;
-                    } catch (error) {
-                        newP.innerHTML = 'error' + error;
-                    }
-                    var newClearFloat = document.createElement("div");
-                    newClearFloat.className = "clearFloat";
+                    // //now for the text & clearfloat
+                    // var newP = document.createElement("p");
+                    // try {
+                    //     newP.innerHTML = messages[messageNumber[i]].Content;
+                    // } catch (error) {
+                    //     newP.innerHTML = 'error' + error;
+                    // }
+                    // var newClearFloat = document.createElement("div");
+                    // newClearFloat.className = "clearFloat";
 
-                    var allOutgoingMessages = document.querySelectorAll('outgoingMessage');
+                    // var allOutgoingMessages = document.querySelectorAll('outgoingMessage');
 
 
 
