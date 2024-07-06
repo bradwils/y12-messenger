@@ -101,6 +101,7 @@ body {
 
 .incomingMessageContainer {
     float: left;
+    width: 100%; /* this is to ensure that the messages do not stack horizontally if they dont take up enough space */
 }
 
 .outgoingMessage {
@@ -129,6 +130,7 @@ body {
 
 .outgoingMessageContainer {
     float: right;
+    width: 100%; /* this is to ensure that the messages do not stack horizontally if they dont take up enough space */
 }
 
 .messageAuthor {

@@ -17,7 +17,7 @@ var view;
                 var messages; //just for testing within func()
 
 
-function func(convoID) { //maybe make into a loop later?
+function loadConversation(convoID) { //maybe make into a loop later?
 // function insertNewMessagesConversationContentContainer(convoID) {
 
     //create div called messagesConversationContentContainerDiv
@@ -108,9 +108,13 @@ function func(convoID) { //maybe make into a loop later?
                     var newClearFloat = document.createElement("div");
                     newClearFloat.className = "clearFloat";
                     
-                    if (allOutgoingMessageContainers.length > 0) { //if there are previous outgoing messages
-                        allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('beforeend', newClearFloat) //for the last outgoingMessageContainer, insert the newOutgoingMessage at the start within it. 
-                    }
+                    allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].appendChild(newClearFloat) //and inserts the new contentcontainer after it
+
+                    var newMessageAuthor = document.createElement("p");
+                    newMessageAuthor.className = "messageAuthor";
+                    newMessageAuthor.innerHTML = 'You';
+
+                    allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('beforeend', newMessageAuthor) //remember we want it to be at the start of the outgoingmessage divs because it's an older message (i think if not just change it to beforeend)
 
 
 
@@ -118,6 +122,43 @@ function func(convoID) { //maybe make into a loop later?
 
                     //not sure which placement position it needs to be
                 } else {
+                    //incoming messages
+                    //create outgoingElement
+                    var newIncomingMessageContainer = document.createElement("div");
+                    newIncomingMessageContainer.className = "incomingMessageContainer";
+
+                    var existingMCCC = document.getElementById("messagesConversationContentContainer");
+
+
+                    existingMCCC.insertAdjacentElement('beforeend', newIncomingMessageContainer) //and inserts the new contentcontainer after it
+                    console.log('inserted newIncomingMessageContainer')
+
+                    var newIncomingMessage = document.createElement("div");
+                    newIncomingMessage.className = "incomingMessage";
+
+                    var allIncomingMessageContainers = document.querySelectorAll('.incomingMessageContainer');
+                     //needs dot to signify class. also remember; this is an array!
+
+                    if (allIncomingMessageContainers.length > 0) { //if there are previous outgoing messages
+                        allIncomingMessageContainers[allIncomingMessageContainers.length-1].insertAdjacentElement('afterbegin', newIncomingMessage) //remember we want it to be at the start of the outgoingmessage divs because it's an older message (i think if not just change it to beforeend)
+                    } else { //there are no existing newIncomingMessage containers (no outgoing messages at all), so we'll just add it to the end of the messagesConversationContentContainer.
+                        allIncomingMessageContainers[0].appendChild(newIncomingMessage) //and inserts the new contentcontainer after it
+                    }
+
+                    var newP = document.createElement("p");
+                    newP.innerHTML = messages[messageNumber[i]].Content;
+                    newIncomingMessage.appendChild(newP); 
+
+                    var newClearFloat = document.createElement("div");
+                    newClearFloat.className = "clearFloat";
+                    
+                    allIncomingMessageContainers[allIncomingMessageContainers.length-1].appendChild(newClearFloat) //and inserts the new contentcontainer after it
+
+                    var newMessageAuthor = document.createElement("p");
+                    newMessageAuthor.className = "messageAuthor";
+                    newMessageAuthor.innerHTML = messages[messageNumber[i]].Owner;
+                
+                    allIncomingMessageContainers[allIncomingMessageContainers.length-1].insertAdjacentElement('beforeend', newMessageAuthor) //remember we want it to be at the start of the outgoingmessage divs because it's an older message (i think if not just change it to beforeend)
 
                 }
 
@@ -160,7 +201,6 @@ var temp;
 async function createConversationOrderedMessagesReference(data) {
     //create a reference to the conversation's messages
     console.log(data)
-     //
 
 
 
@@ -172,5 +212,5 @@ async function createConversationOrderedMessagesReference(data) {
 
 function run() {
     removeElements('id', 'messagesConversationContentContainer');
-    func('1')
+    loadConversation('1')
 }
