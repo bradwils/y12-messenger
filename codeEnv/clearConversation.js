@@ -73,43 +73,44 @@ function func(convoID) { //maybe make into a loop later?
                     //create outgoingElement
                     var newOutgoingMessageContainer = document.createElement("div");
                     newOutgoingMessageContainer.className = "outgoingMessageContainer";
+                    
 
                     //place at the end of messagesConversationContentContainer
-                    existingMCCC = document.getElementById("messagesConversationContentContainer")
-                    messagesContainer.insertAdjacentElement('beforeend', newOutgoingMessageContainer) //and inserts the new contentcontainer after it
-                    console.log('inserted')
+                    var existingMCCC = document.getElementById("messagesConversationContentContainer");
+
+
+                    existingMCCC.insertAdjacentElement('beforeend', newOutgoingMessageContainer) //and inserts the new contentcontainer after it
+                    console.log('inserted newOutgoingMessageContainer')
 
 
                     //now for the outgoingMessage (class)
 
-                    mcccContainer = document.getElementById("messagesConversationContentContainer");
                     
                     var newOutgoingMessage = document.createElement("div");
                     newOutgoingMessage.className = "outgoingMessage";
 
                     var allOutgoingMessageContainers = document.querySelectorAll('.outgoingMessageContainer');
-                    view = allOutgoingMessageContainers
+                    view = allOutgoingMessageContainers //debug
                      //needs dot to signify class. also remember; this is an array!
 
                     if (allOutgoingMessageContainers.length > 0) { //if there are previous outgoing messages
-                        allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('afterbegin', newOutgoingMessage) //for the last outgoingMessageContainer, insert the newOutgoingMessage at the start within it. 
-                    } else { //there are no existing outgoingMessageContainers (no outgoing messages at all), so we'll just add it to the end of the messagesConversationContentContainer.
+                        allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('afterbegin', newOutgoingMessage) //remember we want it to be at the start of the outgoingmessage divs because it's an older message (i think if not just change it to beforeend)
+                    } else { //there are no existing outgoingMessage containers (no outgoing messages at all), so we'll just add it to the end of the messagesConversationContentContainer.
                         allOutgoingMessageContainers[0].appendChild(newOutgoingMessage) //and inserts the new contentcontainer after it
                         //i believe this is wrong; this shouldn't happen; we only get to this spot in the code if the current message = our message.
                     }   //for 
+                    //underneath that we need to add the text
 
-                    // //now for the text & clearfloat
-                    // var newP = document.createElement("p");
-                    // try {
-                    //     newP.innerHTML = messages[messageNumber[i]].Content;
-                    // } catch (error) {
-                    //     newP.innerHTML = 'error' + error;
-                    // }
-                    // var newClearFloat = document.createElement("div");
-                    // newClearFloat.className = "clearFloat";
+                    var newP = document.createElement("p");
+                    newP.innerHTML = messages[messageNumber[i]].Content;
+                    newOutgoingMessage.appendChild(newP); 
 
-                    // var allOutgoingMessages = document.querySelectorAll('outgoingMessage');
-
+                    var newClearFloat = document.createElement("div");
+                    newClearFloat.className = "clearFloat";
+                    
+                    if (allOutgoingMessageContainers.length > 0) { //if there are previous outgoing messages
+                        allOutgoingMessageContainers[allOutgoingMessageContainers.length-1].insertAdjacentElement('beforeend', newClearFloat) //for the last outgoingMessageContainer, insert the newOutgoingMessage at the start within it. 
+                    }
 
 
 
