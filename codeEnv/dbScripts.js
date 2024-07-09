@@ -1,6 +1,4 @@
-// const { getDatabase } = require("firebase/database");
-
-// const { set } = require("firebase/database");
+//REMEMBER; USERIDS ARE EMAILS, MY TEST USER 'USER0' IS FOR TESTING ONLY
 var lastDbSnapshot;
 var dbChange = true; //starts as true so the first use calls an update
 
@@ -11,7 +9,7 @@ function rndm(max) {
 async function writeUserData(userID, displayName, googleUID) {
   //userID is email
   //displayName can be (by default) email w/o the @xxx, and can be changed if wanted
-  //UID is the google sign in ID, and what will be matched when someone signs in with google
+  //userUID is the google sign in ID, and what will be matched when someone signs in with google
   /**
   when writing data:
   - gets the requested userID (unique) and display name (add more parameters to deal with later)
@@ -27,14 +25,14 @@ async function writeUserData(userID, displayName, googleUID) {
   //console.log(reference)
 
 
-  checkUserValidity(userID).then(async (response) => { //read db, when get a return parse it as 'response'
-    if (response == false) {
+  checkUserExists(userID).then(async (response) => { //read db, when get a return parse it as 'response'
+    if (response == true) { //changed from false to true and not tested.
 
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
         //db name   db content
+        userID: userID,
         Name: displayName,
-        loginKey: UID, //the UID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
-        onlineBool: true, 
+        userUID: googleUID, //the userUID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
       });
       //console.log('user data written');
 
@@ -46,10 +44,9 @@ async function writeUserData(userID, displayName, googleUID) {
 
 //below is currently not in use & has errors (todo)
 
-async function initiateNewConversation(participants) { //works? needs thorough testing though
-  //participants needs to be an array
+async function initiateNewConversation(participants, message) { //works? needs thorough testing though
   if (Array.isArray(participants) == false) {
-    return 'notarray';
+    participants = [participants]; //
   }
   //format: userID, name, <message content>
 
@@ -57,11 +54,6 @@ async function initiateNewConversation(participants) { //works? needs thorough t
 
 
 
-
-
-  if (await checkUserValidity(participants) == false) { //make sure all invited people are real users (exist). 
-    return 'invaliduser'
-  }
   if (await existingConversationCheck(participants) == true) { //this will be written at a later date
     console.log('conversation already exists, aborting process');
   } else {
@@ -69,9 +61,9 @@ async function initiateNewConversation(participants) { //works? needs thorough t
 
     const db = getDatabase(app);
     convoID = undefined; //sets to undefined so it can be used in the while loop
-    convoID = await getNextAvailableConversationID()
+    convoID = await getNextAvailableConversationID();
 
-    while (convoID === undefined) {
+    while (convoID === undefined) { //might not be needed, check.
       setTimeout(() => {}, 100); //waits 100ms before checking if convoID is defined again
       console.log('timeout while convoID undefined')
     }
@@ -119,7 +111,9 @@ async function initiateNewConversation(participants) { //works? needs thorough t
 
       //here, within this conversations 'users' section we're saving an array of users that are in this conversation.
 
-    }
+    } 
+    userUID = 'user0' //placeholder
+    sendMessage(convoID, message, userUID, Date.now());
   }
   alert('finished')
 };
@@ -220,15 +214,19 @@ async function getNextAvailableConversationID() { //this works.... perfectly !?
 }
 
 
-async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity if calling it
+async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if calling it
+
+//how does this work?
+
+//for every userID parsed, it is checked in the db. if one is found, 
+
   //CURRENT ISSUE: doesn't run loop cirrectly
-  var validity = true;
+  exists = true;
   if (Array.isArray(userID)) { //if userId is an array
-    for (i = 0; i < userID.length; i++) { //for each in userID
-      //console.log('reading' + userID[i]);
+    for (i = 0; i < userID.length; i++) { //for each in userID 
       await readDB('users/' + userID[i] + '/').then((response) => { //attempt to read that directory
-        if (response == false) { //if response is invalid
-          validity = false; //is valid
+        if (response == false) { //if anyone is invalid
+          return false; //then not all users exist, so just say no. invalid.
         }
       });
       //console.log('i: ' + i + ' userID.length: ' + userID.length)
@@ -237,7 +235,7 @@ async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity 
     if (typeof userID == "string") {
       await readDB('users/' + userID + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if response is invalid
-          validity = false; //is valid
+          return false; //person exists valid
         }
       });
     } else {
@@ -246,7 +244,7 @@ async function checkUserValidity(userID) { //MUST use 'await' checkUserValidity 
   }
   //console.log('returned checkUserValidity');
   //console.log(validity);
-  return validity; //returns true or false depending on whether or not shit is good
+  return exists; //returns true or false depending on whether or not shit is good
 } //works!
 
 
@@ -313,7 +311,7 @@ var signupToken
 var signupUser;
 var errorMessage;
 var email;
-var UID;
+var userUID;
 //from https://firebase.google.com/docs/auth/web/google-signin?authuser=1
 //  signInWithPopup(???, GoogleAuthProvider)
 
@@ -328,7 +326,7 @@ async function userSignInPopupFunction() {
       // The signed-in user info.
       signupUser = result.user; //this has most of the useable data
       loginEmail = result.user.email; //NEEDED
-      UID = result.user.uid; //NEEDED
+      userUID = result.user.userUID; //NEEDED
       console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
       profilePhotoLink = signupUser.photoURL;
       //form testing; this createdAt data is about 30-40s behind from Date.now().
@@ -336,7 +334,7 @@ async function userSignInPopupFunction() {
       //so thats 100000ms
       if (Date.now() - signupUser.metadata.createdAt < 100000) { //if the account's creation time is less than 100 (60-70 realtime) seconds to the current time.
         //new user
-        welcomeNewUser(signupCredential, signupToken, loginEmail, UID, displayName, profilePhotoLink)
+        welcomeNewUser(signupCredential, signupToken, loginEmail, userUID, displayName, profilePhotoLink)
       } else {
         //existing user
         welcomeBack()
@@ -356,7 +354,7 @@ async function userSignInPopupFunction() {
     });
 }
 
-async function getDataFromUser(wantedData, info) { //info is either email or UID. data is the type of data wanted (so UID if we have email, and email if we have UID)
+async function getDataFromUser(wantedData, info) { //info is either email or userUID. data is the type of data wanted (so userUID if we have email, and email if we have userUID)
   if (wantedData == 'email') {
     //get all all UIDs in database, binary sort them 
 
@@ -368,7 +366,7 @@ async function getDataFromUser(wantedData, info) { //info is either email or UID
     });
     
 
-  } else if (wantedData == 'UID') {
+  } else if (wantedData == 'userUID') {
 
   }
 }
@@ -380,7 +378,7 @@ console.log('user exists')
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
-function welcomeNewUser(signupCredential, signupToken, loginEmail, UID, displayName, profilePhotoLink) {
+async function welcomeNewUser(signupCredential, signupToken, loginEmail, userUID, displayName, profilePhotoLink) {
     await writeUserData();
 }
 
@@ -389,6 +387,13 @@ function conversationLoader(convoID) {
 }
 
 
-function testFunc(inputUser, messageContent) {
-  console.log(users + '\n' + messageContent)
+function testFunc(inputUser, message) { //move all of this to initiatenewconvo func?
+  console.log(inputUser + '\n' + message)
+  thisUserID = 'user0' //PLACEHOLDER
+  allConvoParticipants = [thisUserID, inputUser];
+  checkUserExists(inputUser).then((response) => {
+    if (response == true) { //if they exist, initiate.
+     initiateNewConversation(allConvoParticipants, message)
+    }
+  });
 }

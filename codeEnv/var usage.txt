@@ -1,0 +1,5 @@
+userID -> WILL BE EMAIL!, ALSO NAME OF FOLDER FOR USER FOLDER (SINCE IT'S UNIQUE)
+
+UID -> unique, used to figure out who is who.
+
+displayName -> shows in messages, common name / not unique

@@ -34,7 +34,7 @@ function loadConversation(convoID) { //maybe make into a loop later?
 
     // position can be: beforebegin, afterbegin, beforeend, afterend.
 
-
+    console.log('conversations/' + convoID)
 
 
 
@@ -44,7 +44,7 @@ function loadConversation(convoID) { //maybe make into a loop later?
     //at the moment, let's user userID 1 is the client and anything else is someone else.
 
     const userID = 'user0'; //this will be dynamic later, but for now is this FOR TESTING
-    // const userID = UUID; //for later
+    // const userID = userUID; //for later
 
     //create a div called placeholder which sits in place telling the user that it's loading
 
@@ -52,6 +52,16 @@ function loadConversation(convoID) { //maybe make into a loop later?
         readDB('conversations/' + convoID).then((conversationData) => {
             view = conversationData
             // readDB('conversations/1').then((conversationData) => {
+                // try {
+                //     console.log(conversationData.messages);
+                // } catch {
+                //     alert('stop')
+                // }
+
+                if (conversationData.messages == undefined) {
+                    alert('error with conversation');
+                    return; //failsafe not need in final build
+                }
                 messageNumber = Object.keys(conversationData.messages);
                 //array with each value for each of the entries in messages (so the folder names).
 

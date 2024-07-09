@@ -12,9 +12,9 @@
         <div id="conversationsContainer">
             
             <div id="conversationListBox">
-                <input type="email" name="" id="newConversationEmailInput">
-                <button onclick="testFunc(document.getElementById('newConversationEmailInput').value)" style="width:30%; height: 50%; margin-top: 5%;">make new convo</button>
-                <input style="width: 30%; height: 80%; margin-right: 2%;" placeholder="messageContent" type="text">
+                <input placeholder="New Chat With" type="email" name="" id="newConversationEmailInput">
+                <button onclick="testFunc(document.getElementById('newConversationEmailInput').value, document.getElementById('newConvoMessageBox').value)" style="width:30%; height: 50%; margin-top: 5%;">make new convo</button>
+                <input id="newConvoMessageBox" style="width: 30%; height: 80%; margin-right: 2%;" placeholder="messageContent" type="text">
             </div>
             
 
