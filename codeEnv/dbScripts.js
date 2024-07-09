@@ -8,10 +8,10 @@ function rndm(max) {
   return String(Math.floor(Math.random() * max));
 }
 
-async function writeUserData(userID, displayName, googleUUID) {
+async function writeUserData(userID, displayName, googleUID) {
   //userID is email
   //displayName can be (by default) email w/o the @xxx, and can be changed if wanted
-  //UUID is the google sign in ID, and what will be matched when someone signs in with google
+  //UID is the google sign in ID, and what will be matched when someone signs in with google
   /**
   when writing data:
   - gets the requested userID (unique) and display name (add more parameters to deal with later)
@@ -33,7 +33,7 @@ async function writeUserData(userID, displayName, googleUUID) {
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
         //db name   db content
         Name: displayName,
-        loginKey: UUID, //the UUID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
+        loginKey: UID, //the UID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
         onlineBool: true, 
       });
       //console.log('user data written');
@@ -313,7 +313,7 @@ var signupToken
 var signupUser;
 var errorMessage;
 var email;
-var UUID;
+var UID;
 //from https://firebase.google.com/docs/auth/web/google-signin?authuser=1
 //  signInWithPopup(???, GoogleAuthProvider)
 
@@ -327,15 +327,16 @@ async function userSignInPopupFunction() {
       signupToken = signupCredential.accessToken; //PROBABLY NOT NEEDED
       // The signed-in user info.
       signupUser = result.user; //this has most of the useable data
-      loginEmail = result.user.email; //NOT NEEDED
-      UUID = result.user.uid; //NEEDED
+      loginEmail = result.user.email; //NEEDED
+      UID = result.user.uid; //NEEDED
       console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
+      profilePhotoLink = signupUser.photoURL;
       //form testing; this createdAt data is about 30-40s behind from Date.now().
       //if account created within 60s ( + buffer ) of current time, it's a new account.
       //so thats 100000ms
       if (Date.now() - signupUser.metadata.createdAt < 100000) { //if the account's creation time is less than 100 (60-70 realtime) seconds to the current time.
         //new user
-        welcomeNewUser()
+        welcomeNewUser(signupCredential, signupToken, loginEmail, UID, displayName, profilePhotoLink)
       } else {
         //existing user
         welcomeBack()
@@ -355,6 +356,23 @@ async function userSignInPopupFunction() {
     });
 }
 
+async function getDataFromUser(wantedData, info) { //info is either email or UID. data is the type of data wanted (so UID if we have email, and email if we have UID)
+  if (wantedData == 'email') {
+    //get all all UIDs in database, binary sort them 
+
+    await readDB(path + '/').then((response) => { //read db, when get a return parse it as 'response'
+
+
+
+
+    });
+    
+
+  } else if (wantedData == 'UID') {
+
+  }
+}
+
 
 function welcomeBack() {
 console.log('user exists')
@@ -362,10 +380,15 @@ console.log('user exists')
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
-function welcomeNewUser() {
-    //entry form for display name 
+function welcomeNewUser(signupCredential, signupToken, loginEmail, UID, displayName, profilePhotoLink) {
+    await writeUserData();
 }
 
 function conversationLoader(convoID) {
 
+}
+
+
+function testFunc(inputUser, messageContent) {
+  console.log(users + '\n' + messageContent)
 }

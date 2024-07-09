@@ -10,6 +10,14 @@
     <div id="container">
         
         <div id="conversationsContainer">
+            
+            <div id="conversationListBox">
+                <input type="email" name="" id="newConversationEmailInput">
+                <button onclick="testFunc(document.getElementById('newConversationEmailInput').value)" style="width:30%; height: 50%; margin-top: 5%;">make new convo</button>
+                <input style="width: 30%; height: 80%; margin-right: 2%;" placeholder="messageContent" type="text">
+            </div>
+            
+
             <div id="conversationListBox">
                 <div id="conversationListBoxPhoto">
                     <p style="text-align: center;">photo</p>
@@ -18,6 +26,7 @@
                     <p>text goes here</p>
                 </div>
             </div>
+            
         </div>
 
         <div id="messagesContainer">
@@ -159,7 +168,7 @@
 
 <script type="module" src="imports.js"></script>
 <script src="dbScripts.js"></script>
-<script src="clearConversation.js"></script>
+<script src="messagesContainerConversation.js"></script>
 
 </html>
 

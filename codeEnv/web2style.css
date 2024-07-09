@@ -9,6 +9,7 @@ body {
     background-color: rgb(220, 241, 245);
     overflow: scroll;
     display:flex;
+    flex-direction: column;
 
 }   
 
@@ -35,7 +36,24 @@ body {
     background-color:aqua;
 }
 
+
+#newConversationEmailInput {
+    width: 50%;
+    margin-left: 5%;
+    margin-right: 5%;
+    height: 30%;
+    margin-top: 5%;
+}
+
 /* MessagesContainer needs to take up 100% of height. Within this, 90% is the messagesConversationContentContainer and another 10% is the messagesConversationSendContainer */
+
+
+
+
+
+
+
+
 
 #messagesContainer {
     background-color: #dedede;
