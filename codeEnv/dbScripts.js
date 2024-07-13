@@ -226,7 +226,8 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
     for (i = 0; i < userID.length; i++) { //for each in userID 
       await readDB('users/' + userID[i] + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if anyone is invalid
-          return false; //then not all users exist, so just say no. invalid.
+          console.log('false1')
+          exists = false; //then not all users exist, so just say no. invalid.
         }
       });
       //console.log('i: ' + i + ' userID.length: ' + userID.length)
@@ -235,10 +236,12 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
     if (typeof userID == "string") {
       await readDB('users/' + userID + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if response is invalid
-          return false; //person exists valid
+          console.log('false2')
+          exists = false; //person exists valid
         }
       });
     } else {
+      console.log('false3')
       console.error('bad input:' + typeof (userID))
     }
   }
@@ -393,6 +396,7 @@ function testFunc(inputUser, message) { //move all of this to initiatenewconvo f
   allConvoParticipants = [thisUserID, inputUser];
   checkUserExists(inputUser).then((response) => {
     if (response == true) { //if they exist, initiate.
+      console.log('continuing')
      initiateNewConversation(allConvoParticipants, message)
     }
   });

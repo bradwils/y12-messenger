@@ -187,6 +187,7 @@ function loadConversation(convoID) { //maybe make into a loop later?
 
     // newMessagesConversationContentContainer
     // under messagesContainer
+    conversationContext = ConvoID;
 }
 
 
@@ -212,6 +213,25 @@ function removeElements(type, id) { //just for use, we want to be remoing the ID
     }
 }
 
+async function loadConversationsSidebar(userID) {
+userID = 'user0'
+    //get conversations
+    readDB('users/' + userID + '/conversations/').then((response) => {
+       for (i=0; i < response.length; i++) {
+        
+        
+
+
+
+
+
+
+
+
+       }
+    });
+}
+
 var orderedMessagesReference;
 var temp;
 async function createConversationOrderedMessagesReference(data) {
@@ -226,7 +246,7 @@ async function createConversationOrderedMessagesReference(data) {
 }
 
 
-function run() {
+function run(num) {
     removeElements('id', 'messagesConversationContentContainer');
-    loadConversation('2')
+    loadConversation(String(num))
 }

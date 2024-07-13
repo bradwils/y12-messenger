@@ -20,15 +20,6 @@ body {
     height: 10%;
     /* background-color: rgb(191, 162, 242);            this can't be seen as the photobox & textbox cover it up. */
 }
-#conversationListBoxPhoto {
-    /* border: 1px solid green; */
-    /* float: left;  this causes issues where it sides side by side instead of properly within the parent dev */
-    /* width: 30%; */
-    height: 100%;
-    aspect-ratio: 1/1;
-    background-color: antiquewhite;
-
-}
 
 #conversationListBoxText {
     flex-grow: 1;
