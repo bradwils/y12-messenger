@@ -1,5 +1,5 @@
 //div with id messagesConversationContentContainer can be deleted to clear all chats. then, we can create the div again (with the same ID so it inherits css), before then rendering all elements within that div. so we can delete the div every time we're done with it.
-
+var lastLoaded = 0; //var for convo loading to use with listener
 
 var view;
 //elements struct 
@@ -17,7 +17,15 @@ var view;
                 var messages; //just for testing within func()
 
 
-function loadConversation(convoID) { //maybe make into a loop later?
+function loadConversation(convoID) {
+    if (convoID !== lastLoaded) {
+        console.log('not equal! removing the convo listener for convo ' + conversationContext)
+        removeConvoListener(conversationContext) //uses old convoContext which is loaded on the page)
+    }
+    removeElements('id', 'messagesConversationContentContainer');
+    
+    //maybe make into a loop later?
+    console.log('running: ' + convoID)
 // function insertNewMessagesConversationContentContainer(convoID) {
 
     //create div called messagesConversationContentContainerDiv
@@ -43,7 +51,7 @@ function loadConversation(convoID) { //maybe make into a loop later?
     //for every message we need to create a div element.
     //at the moment, let's user userID 1 is the client and anything else is someone else.
 
-    const userID = 'user0'; //this will be dynamic later, but for now is this FOR TESTING
+    // const userID = 'user0'; //this will be dynamic later, but for now is this FOR TESTING
     // const userID = userUID; //for later
 
     //create a div called placeholder which sits in place telling the user that it's loading
@@ -75,9 +83,9 @@ function loadConversation(convoID) { //maybe make into a loop later?
                     //create div(s) for each message and stack them under each other and then render at the very end (outside of this loop)
                     var messagesContainer = document.getElementById('messagesConversationContentContainer'); //this is the container for everything to be placed
                     //incoming or outgoing message container
-                    if (messages[messageNumber[i]].Owner == userID) { //if it's the user's messages 
+                    if (messages[messageNumber[i]].Owner == signedInUserID) { //if it's the user's messages 
                         //this if statement works!
-                        console.log('matching ' + userID + 'with ' + messages[messageNumber[i]].Owner) 
+                        console.log('matching ' + signedInUserID + 'with ' + messages[messageNumber[i]].Owner) 
 
 
 
@@ -177,18 +185,51 @@ function loadConversation(convoID) { //maybe make into a loop later?
 
                 }
             });   
-        
+        console.log('asdhgasdhiasidasd')
     } catch(error) {
-        console.log(conversationData)
+        console.error(error)
 
     }
 
+    if (convoID !== lastLoaded) {
+        console.log('diff convo! adding the convo listener for convo ' + convoID);
+        listenForChanges(convoID);
+    }
 
+    console.log('a')
 
-    // newMessagesConversationContentContainer
-    // under messagesContainer
-    conversationContext = ConvoID;
+    lastLoaded = convoID
+    conversationContext = convoID;
+    console.log('fully loaded + convoID: ' + convoID)
+
 }
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
 
 
 function removeElements(type, id) { //just for use, we want to be remoing the ID 'messagesConversationContentContainer' between conversations, leaving the overarching 'messagesContainer alone.
@@ -213,20 +254,85 @@ function removeElements(type, id) { //just for use, we want to be remoing the ID
     }
 }
 
-async function loadConversationsSidebar(userID) {
-userID = 'user0'
+async function reloadConversationsSidebar(userID) {
+    removeElements('id', 'listContainer');
+    // userID = 'user0'
     //get conversations
-    readDB('users/' + userID + '/conversations/').then((response) => {
-       for (i=0; i < response.length; i++) {
+    var allBoxes = document.querySelectorAll('.incomingMessageContainer');
+
+
+    var listContainer = document.createElement("div")
+    listContainer.id = 'listContainer';
+    var conversationsContainer = document.getElementById('conversationsContainer');
+    conversationsContainer.appendChild(listContainer);
+
+    listContainer = document.getElementById('listContainer');
+
+    var newConvoBox = document.createElement("div");
+    newConvoBox.className = 'newConvoBox';
+    listContainer.appendChild(newConvoBox);
+
+    newConvoBox = document.getElementsByClassName('newConvoBox');
+
+    var newConvoInput = document.createElement("input");
+    newConvoInput.placeholder = 'New Conversation With';
+    newConvoInput.type = 'email';
+    newConvoInput.id = 'newConversationEmailInput';
+
+    newConvoBox[0].appendChild(newConvoInput);
+
+
+    var newConvoButton = document.createElement("button");
+    newConvoButton.id = 'newConvoButton';
+    newConvoButton.addEventListener('click', function() {
+        startNewConvo(document.getElementById('newConversationEmailInput').value, document.getElementById('newConvoMessageBox').value);
+    });
+    newConvoButton.innerHTML = 'make new convo';
+
+    newConvoBox[0].appendChild(newConvoButton);
+
+    var newConvoMessageBox = document.createElement("input");
+    newConvoMessageBox.placeholder = 'Message Content';
+    newConvoMessageBox.type = 'text';
+    newConvoMessageBox.id = 'newConvoMessageBox';
+    newConvoBox[0].appendChild(newConvoMessageBox);
+
+
+
+    readDB('users/' + userID + '/conversations').then((response) => {
+        console.log(response)
+       for (i=0; i < response.length; i++) { //bandaid fix to unknown read issue with this specific set of data
+        if (response[i] == undefined) {
+            continue;
+        };
+        var listContainer = document.getElementById('listContainer')
+        var allConvoListBoxes = document.getElementsByClassName('conversationListBox');
+        var allConvoListBoxTexts = document.getElementsByClassName('conversationListBoxText');
+
+
         
+
+        var convoListbox = document.createElement("div");
+        convoListbox.className = 'conversationListBox';
+        listContainer.appendChild(convoListbox);
+
+        var convoListBoxTextDiv = document.createElement("div");
+        convoListBoxTextDiv.className = 'conversationListBoxText';
+        iteration = 
+        convoListBoxTextDiv.addEventListener('click', (function(index) {
+            return function() {
+                console.log('RUNNING loadConvo with i as ' + index + ' and response[i]: ' + response[index]);
+                loadConversation(response[index]);
+            };
+        })(i));
         
+        allConvoListBoxes[allConvoListBoxes.length - 1].appendChild(convoListBoxTextDiv);
 
+        var convoListBoxText = document.createElement("p");
+        // convoListBoxText.className = 'conversationListBoxText';
+        convoListBoxText.innerHTML = response[i]; //needs to be name of convo participants later
 
-
-
-
-
-
+        allConvoListBoxTexts[allConvoListBoxTexts.length - 1].appendChild(convoListBoxText);
 
        }
     });
@@ -250,3 +356,47 @@ function run(num) {
     removeElements('id', 'messagesConversationContentContainer');
     loadConversation(String(num))
 }
+
+//formatting issues, need to fix. but underlying works
+
+
+
+
+function k(num) {
+    loadConversation(String(num))
+    reloadConversationsSidebar('user0')
+}
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+
+//work on using copilot to do iife (fix the issue where loadConversation(response[i]) is using the final value of i instead of the one in it's current iteration)

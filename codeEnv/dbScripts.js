@@ -1,12 +1,16 @@
 //REMEMBER; USERIDS ARE EMAILS, MY TEST USER 'USER0' IS FOR TESTING ONLY
 var lastDbSnapshot;
+var conversationContext;
+var signedInUserID; //global scope so it can be used from other areas of code.
 var dbChange = true; //starts as true so the first use calls an update
+//remove dbChange?
 
 function rndm(max) {
   return String(Math.floor(Math.random() * max));
 }
 
-async function writeUserData(userID, displayName, googleUID) {
+async function writeUserData(userID, email, googleUID) {
+  console.log(userID + '\n' + email + '\n' + googleUID)
   //userID is email
   //displayName can be (by default) email w/o the @xxx, and can be changed if wanted
   //userUID is the google sign in ID, and what will be matched when someone signs in with google
@@ -26,18 +30,23 @@ async function writeUserData(userID, displayName, googleUID) {
 
 
   checkUserExists(userID).then(async (response) => { //read db, when get a return parse it as 'response'
-    if (response == true) { //changed from false to true and not tested.
-
+    if (response == true) {
+      writeLookupData(email, userID);
+      console.log('writing user data')
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
         //db name   db content
         userID: userID,
-        Name: displayName,
+        email: email,
         userUID: googleUID, //the userUID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
       });
       //console.log('user data written');
 
+
+
+
+
     } else {
-      return ('user already exists');
+      console.log('user already exists');
     }
   });
 }
@@ -120,10 +129,12 @@ async function initiateNewConversation(participants, message) { //works? needs t
 
 
 
-function readDB(path) { //path should be used like this: 
+function readDB(path) { 
+  console.log('called')//path should be used like this: 
   const db = getDatabase(app); //updates db shit (idrk waht it does)
   const reference = ref(db, path); //sets reference (based on parsed path, etc 'users/id/')
-  return get(reference).then((snapshot) => { //get (data referenced) and then parse it as snapshot. the .then makes sure that data is returned BEFORE continuing or else you get a bunch of 'undefined's.
+  return get(reference).then((snapshot) => {
+    console.log(snapshot.val()) //get (data referenced) and then parse it as snapshot. the .then makes sure that data is returned BEFORE continuing or else you get a bunch of 'undefined's.
     if (snapshot.exists()) { //if snapshot does exist
       console.log('snapshot exists'); //yep
       lastDbSnapshot = snapshot.val(); //set it to lastDbSnapshot
@@ -144,18 +155,17 @@ function readDB(path) { //path should be used like this:
 
 
 
-
 async function sendMessage(conversationID, content, sender, timestamp) {
+  console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
+  console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
   //by storing the data as a folder, with the timestamp as the name, the data is already oredered, as data is apended lower down in the structure as it's written, which will be at a time later than the previous data (since you can't go back in time).
-  
   content = String(content) //ensure it's a string
-  
   //what do we want this function to do?
   const db = getDatabase(app);
   var reference = ref(db, 'conversations/' + conversationID + '/messages/' + timestamp);
   await set(reference, {
     Content: content,
-    Owner: sender,
+    Owner: sender
   }).catch((error) => {
     console.error('error while sending message, ' + error)
   })
@@ -319,29 +329,39 @@ var userUID;
 //  signInWithPopup(???, GoogleAuthProvider)
 
 
-
+var loginEmail;
+//global scope so it can be used from other areas of code.
 async function userSignInPopupFunction() {
   signInWithPopup(Auth, new GoogleAuthProvider())
     .then((result) => {
+      console.log(result.user)
       // This gives you a Google Access Token. You can use it to access the Google API.
       signupCredential = GoogleAuthProvider.credentialFromResult(result); //PROBABLY NOT NEEDED
       signupToken = signupCredential.accessToken; //PROBABLY NOT NEEDED
       // The signed-in user info.
       signupUser = result.user; //this has most of the useable data
       loginEmail = result.user.email; //NEEDED
-      userUID = result.user.userUID; //NEEDED
+      userUID = result.user.uid; //NEEDED
       console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
       profilePhotoLink = signupUser.photoURL;
+
+
+      displayName = loginEmail.split('@')[0];
+      signedInUserID = displayName //split the email at the @, and take the first part (before the @) as the display name
       //form testing; this createdAt data is about 30-40s behind from Date.now().
       //if account created within 60s ( + buffer ) of current time, it's a new account.
       //so thats 100000ms
       if (Date.now() - signupUser.metadata.createdAt < 100000) { //if the account's creation time is less than 100 (60-70 realtime) seconds to the current time.
         //new user
-        welcomeNewUser(signupCredential, signupToken, loginEmail, userUID, displayName, profilePhotoLink)
+        console.log('running welcomeNewUser')
+        welcomeNewUser(signupCredential, signupToken, loginEmail, signedInUserID, displayName, profilePhotoLink)
       } else {
+        console.log('user exists, moving to welcomeBack')
         //existing user
-        welcomeBack()
+        welcomeBack(signedInUserID)
       }
+
+      addConvoListListener();
 
       // ...
     }).catch((error) => {
@@ -375,14 +395,20 @@ async function getDataFromUser(wantedData, info) { //info is either email or use
 }
 
 
-function welcomeBack() {
-console.log('user exists')
+function welcomeBack(userID) {
+reloadConversationsSidebar(userID)
+console.log('user exists, reloading sidebar')
     //popup successful login, and display sign out button on HTML
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
-async function welcomeNewUser(signupCredential, signupToken, loginEmail, userUID, displayName, profilePhotoLink) {
-    await writeUserData();
+async function welcomeNewUser(signupCredential, signupToken, loginEmail, userUD, displayName, profilePhotoLink) {
+    await writeUserData(displayName, loginEmail, userID).then(() => {
+    // alert('create your first conversation in the top left!')
+      console.log('fininshed waiting')
+
+
+    });
 }
 
 function conversationLoader(convoID) {
@@ -390,14 +416,70 @@ function conversationLoader(convoID) {
 }
 
 
-function testFunc(inputUser, message) { //move all of this to initiatenewconvo func?
+function startNewConvo(inputUser, message) { //move all of this to initiatenewconvo func?
   console.log(inputUser + '\n' + message)
-  thisUserID = 'user0' //PLACEHOLDER
-  allConvoParticipants = [thisUserID, inputUser];
+  allConvoParticipants = [signedInUserID, inputUser];
   checkUserExists(inputUser).then((response) => {
     if (response == true) { //if they exist, initiate.
       console.log('continuing')
      initiateNewConversation(allConvoParticipants, message)
     }
   });
+}
+
+async function writeLookupData(email, displayName) {
+  const db = getDatabase(app);
+  const reference = ref(db, 'lookup/');
+  shortenedEmail = loginEmail.split('@')[0];
+  await set(reference, {
+    [displayName]: shortenedEmail
+  });
+}
+
+
+
+
+let listenForConvoChanges;
+let isFirstCall;
+let lastConvo; //last convo that was refreshed here, so also the one on 1st call
+
+async function listenForChanges(id) {
+  console.log('listening on ' + id)
+  let db = getDatabase(app);
+  let listenRef = ref(db, 'conversations/' + id);
+
+  listenForConvoChanges = (snapshot) => {//first run
+    if (!(lastConvo == conversationContext)) {
+      console.log('first run, skipping \n lastconvo' + lastConvo + ' convocontext' + conversationContext)
+      lastConvo = conversationContext;      
+    } else {
+      loadConversation(conversationContext);
+    }
+  }
+  onValue(listenRef, listenForConvoChanges);
+}
+
+function removeConvoListener(id ) {
+  console.log('removing on ' + id)
+  let db = getDatabase(app);
+  let listenRef = ref(db, 'conversations/' + id);
+  if (listenForConvoChanges) {
+    off(listenRef, 'value', listenForConvoChanges); // Correctly remove the listener
+  }
+}
+
+
+var listLoaded = true;
+async function addConvoListListener() {
+  let db = getDatabase(app);
+  let listListenRef = ref(db, 'users/' + signedInUserID + '/conversations');
+  listenForListChanges = (snapshot) => {
+    if (listLoaded == true) {
+      listLoaded = false;
+      console.log('nope')
+    } else {
+      reloadConversationsSidebar(signedInUserID);
+    }
+  }
+  onValue(listListenRef, listenForListChanges);
 }

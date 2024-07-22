@@ -1,6 +1,6 @@
 //make imported functions globally accessable
 import { initializeApp } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-app.js";
-import { getDatabase, push, ref, set, get, child, update } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
+import { getDatabase, off, push, ref, set, get, child, update, onValue } from "https://www.gstatic.com/firebasejs/10.8.1/firebase-database.js";
 import { getAuth, signInWithPopup, GoogleAuthProvider } from 'https://www.gstatic.com/firebasejs/10.8.1/firebase-auth.js'
 
 //SET writes new data to a directory and wipes EVERYTHING ELSE OUT; like deleting everything at a location then writing whatever it has been set to di.
@@ -27,7 +27,9 @@ window.set = set;
 window.get = get;
 window.child = child;
 window.push = push;
+window.off = off;
 window.update = update;
+window.onValue = onValue;
 window.getAuth = getAuth;
 window.signInWithPopup = signInWithPopup;
 window.GoogleAuthProvider = GoogleAuthProvider;
@@ -38,4 +40,7 @@ window.firebaseConfig = firebaseConfig;
 window.app = initializeApp(firebaseConfig);
 window.Auth = getAuth(app) //auth works
 
-console.log('imported') 
+// alert('please sign in to use the website!') //this will run when the file is imported
+// userSignInPopupFunction();
+
+
