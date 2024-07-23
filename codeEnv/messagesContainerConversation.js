@@ -186,6 +186,11 @@ function loadConversation(convoID) {
                 }
             });   
         console.log('asdhgasdhiasidasd')
+
+        var messagesContainerTarget = document.getElementById('messagesConversationContentContainer');
+        messagesContainerTarget.scrollTop = messagesContainerTarget.scrollHeight;
+
+        
     } catch(error) {
         console.error(error)
 

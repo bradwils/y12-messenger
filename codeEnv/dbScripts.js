@@ -121,7 +121,7 @@ async function initiateNewConversation(participants, message) { //works? needs t
       //here, within this conversations 'users' section we're saving an array of users that are in this conversation.
 
     } 
-    userUID = 'user0' //placeholder
+    userUID = signedInUserID //placeholder
     sendMessage(convoID, message, userUID, Date.now());
   }
   alert('finished')
@@ -402,7 +402,7 @@ console.log('user exists, reloading sidebar')
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
-async function welcomeNewUser(signupCredential, signupToken, loginEmail, userUD, displayName, profilePhotoLink) {
+async function welcomeNewUser(signupCredential, signupToken, loginEmail, userID, displayName, profilePhotoLink) {
     await writeUserData(displayName, loginEmail, userID).then(() => {
     // alert('create your first conversation in the top left!')
       console.log('fininshed waiting')
