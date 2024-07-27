@@ -1,0 +1,7 @@
+almost completely works, but the convo that is created isn't added to the other user's convo list within users/[user]/conversations. it is added for the account that is creating that new conversation though. trying to debug by putting console.log at 93. it is undefined instead.
+
+the other user seems to be undefined instead of (in this case witherform. 
+)
+try doing it again rn and see what happens and what is output at 93.
+
+check coment line 111

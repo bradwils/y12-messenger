@@ -10,7 +10,7 @@ function rndm(max) {
 }
 
 async function writeUserData(userID, email, googleUID) {
-  console.log(userID + '\n' + email + '\n' + googleUID)
+  // console.log(userID + '\n' + email + '\n' + googleUID)
   //userID is email
   //displayName can be (by default) email w/o the @xxx, and can be changed if wanted
   //userUID is the google sign in ID, and what will be matched when someone signs in with google
@@ -29,8 +29,8 @@ async function writeUserData(userID, email, googleUID) {
   //console.log(reference)
 
 
-  checkUserExists(userID).then(async (response) => { //read db, when get a return parse it as 'response'
-    if (response == true) {
+  checkUserExists(userID).then(async (response) => {
+    if (response == false) { //is this user doesn't eixst then...
       writeLookupData(email, userID);
       console.log('writing user data')
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
@@ -49,6 +49,7 @@ async function writeUserData(userID, email, googleUID) {
       console.log('user already exists');
     }
   });
+  return true;
 }
 
 //below is currently not in use & has errors (todo)
@@ -88,11 +89,13 @@ async function initiateNewConversation(participants, message) { //works? needs t
     // writeNewConversation(participants) //why is this here? it's just making it be called twice! FUCK!!!! immortalized.
 
     //now, we write the convo data to each user
-    for (i = 0; i < participants.length; i++) {
-      console.log('participantsLoop i: ' + i) //for each person, append the new convoID to their conversations list.
+    // for (i = 0; i < participants.length; i++) {
+      for (const element in participants) {
+      console.log('aprticipants: ' + participants)
+      console.log('participantsLoop i: ' + element) //for each person, append the new convoID to their conversations list.
       const db = getDatabase(app);
       // users   //   user0           // 
-      await readDB('users/' + participants[i] + '/').then((response) => {
+      await readDB('users/' + participants[element] + '/').then((response) => {
 
         //
         //read db, when get a return parse it as 'response'
@@ -104,7 +107,9 @@ async function initiateNewConversation(participants, message) { //works? needs t
           } catch {
             nextConvoSpace = 1;
           }
-          var reference = ref(db, 'users/' + participants[i] + '/conversations/');
+          var reference = ref(db, 'users/' + participants[element] + '/conversations/');
+          console.log('writing to users/' + participants[element] + '/conversations/\nparticipants is ' + participants)
+          //second iteration of participants[i] is undefined; why?
           update(reference, {
             [nextConvoSpace]: convoID, //nextConvoSpace seems to always go up by two; not sure why. otherwise, works! (as far as i've tested it writes in the write spots.)
             //need to update convo folder too
@@ -233,6 +238,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
   //CURRENT ISSUE: doesn't run loop cirrectly
   exists = true;
   if (Array.isArray(userID)) { //if userId is an array
+    console.log.log('userID is array, runninig array check')
     for (i = 0; i < userID.length; i++) { //for each in userID 
       await readDB('users/' + userID[i] + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if anyone is invalid
@@ -244,6 +250,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
     }
   } else { //for strings (works)
     if (typeof userID == "string") {
+      console.log('is string, running')
       await readDB('users/' + userID + '/').then((response) => { //attempt to read that directory
         if (response == false) { //if response is invalid
           console.log('false2')
@@ -255,7 +262,6 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
       console.error('bad input:' + typeof (userID))
     }
   }
-  //console.log('returned checkUserValidity');
   //console.log(validity);
   return exists; //returns true or false depending on whether or not shit is good
 } //works!
@@ -329,11 +335,11 @@ var userUID;
 //  signInWithPopup(???, GoogleAuthProvider)
 
 
-var loginEmail;
+var loginEmail;                                                                                                                                             
 //global scope so it can be used from other areas of code.
 async function userSignInPopupFunction() {
   signInWithPopup(Auth, new GoogleAuthProvider())
-    .then((result) => {
+    .then(async (result) => {
       console.log(result.user)
       // This gives you a Google Access Token. You can use it to access the Google API.
       signupCredential = GoogleAuthProvider.credentialFromResult(result); //PROBABLY NOT NEEDED
@@ -342,26 +348,28 @@ async function userSignInPopupFunction() {
       signupUser = result.user; //this has most of the useable data
       loginEmail = result.user.email; //NEEDED
       userUID = result.user.uid; //NEEDED
-      console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
+      // console.log('date now: ' + Date.now() + '\n signupDate: ' + signupUser.metadata.createdAt);
       profilePhotoLink = signupUser.photoURL;
 
 
       displayName = loginEmail.split('@')[0];
       signedInUserID = displayName //split the email at the @, and take the first part (before the @) as the display name
-      //form testing; this createdAt data is about 30-40s behind from Date.now().
-      //if account created within 60s ( + buffer ) of current time, it's a new account.
-      //so thats 100000ms
-      if (Date.now() - signupUser.metadata.createdAt < 100000) { //if the account's creation time is less than 100 (60-70 realtime) seconds to the current time.
-        //new user
-        console.log('running welcomeNewUser')
-        welcomeNewUser(signupCredential, signupToken, loginEmail, signedInUserID, displayName, profilePhotoLink)
-      } else {
-        console.log('user exists, moving to welcomeBack')
-        //existing user
-        welcomeBack(signedInUserID)
-      }
 
-      addConvoListListener();
+      if ((await checkUserExists(signedInUserID)) == false) { //if user doesnt exist
+        //user doesnt exist; go through onboarding
+        console.log('user doesnt exist')
+        writeUserData(displayName, loginEmail, userUID).then((result) => {
+          if (result == true) {
+          reloadConversationsSidebar(displayName)
+          addConvoListListener();
+      } else {
+        alert('failed to write user data')
+      }});
+      } else {
+        console.log('user does already exist')
+        welcomeBack(signedInUserID);
+        addConvoListListener();
+      }
 
       // ...
     }).catch((error) => {
@@ -402,15 +410,6 @@ console.log('user exists, reloading sidebar')
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
 }
 
-async function welcomeNewUser(signupCredential, signupToken, loginEmail, userID, displayName, profilePhotoLink) {
-    await writeUserData(displayName, loginEmail, userID).then(() => {
-    // alert('create your first conversation in the top left!')
-      console.log('fininshed waiting')
-
-
-    });
-}
-
 function conversationLoader(convoID) {
 
 }
@@ -430,9 +429,8 @@ function startNewConvo(inputUser, message) { //move all of this to initiatenewco
 async function writeLookupData(email, displayName) {
   const db = getDatabase(app);
   const reference = ref(db, 'lookup/');
-  shortenedEmail = loginEmail.split('@')[0];
   await set(reference, {
-    [displayName]: shortenedEmail
+    [displayName]: email
   });
 }
 
@@ -459,7 +457,7 @@ async function listenForChanges(id) {
   onValue(listenRef, listenForConvoChanges);
 }
 
-function removeConvoListener(id ) {
+function removeConvoListener(id) {
   console.log('removing on ' + id)
   let db = getDatabase(app);
   let listenRef = ref(db, 'conversations/' + id);
@@ -471,8 +469,10 @@ function removeConvoListener(id ) {
 
 var listLoaded = true;
 async function addConvoListListener() {
+  console.log('adding conovo listener')
   let db = getDatabase(app);
   let listListenRef = ref(db, 'users/' + signedInUserID + '/conversations');
+  console.log('listListenRef: ' + listListenRef)
   listenForListChanges = (snapshot) => {
     if (listLoaded == true) {
       listLoaded = false;
