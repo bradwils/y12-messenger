@@ -1,13 +1,9 @@
 //REMEMBER; USERIDS ARE EMAILS, MY TEST USER 'USER0' IS FOR TESTING ONLY
-var lastDbSnapshot;
-var conversationContext;
+var lastDbSnapshot; //data hold for database retrievals
+var conversationContext; //global data hold for which conversation is being viewed
 var signedInUserID; //global scope so it can be used from other areas of code.
 var dbChange = true; //starts as true so the first use calls an update
 //remove dbChange?
-
-function rndm(max) {
-  return String(Math.floor(Math.random() * max));
-}
 
 async function writeUserData(userID, email, googleUID) {
   // console.log(userID + '\n' + email + '\n' + googleUID)
@@ -24,14 +20,14 @@ async function writeUserData(userID, email, googleUID) {
   **/
 
 
-  const db = getDatabase(app);
+  const db = getDatabase(app); //refreshes database instance; //refreshes database instance; //refreshes db instance
   const reference = ref(db, 'users/' + userID);
   //console.log(reference)
 
 
   checkUserExists(userID).then(async (response) => {
     if (response == false) { //is this user doesn't eixst then...
-      writeLookupData(email, userID);
+      writeLookupData(email, userID); //write lookup data to lookup folder
       console.log('writing user data')
       await set(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
         //db name   db content
@@ -45,7 +41,7 @@ async function writeUserData(userID, email, googleUID) {
 
 
 
-    } else {
+    } else {//if user does already exist
       console.log('user already exists');
     }
   });
@@ -55,25 +51,16 @@ async function writeUserData(userID, email, googleUID) {
 //below is currently not in use & has errors (todo)
 
 async function initiateNewConversation(participants, message) { //works? needs thorough testing though
-  if (Array.isArray(participants) == false) {
-    participants = [participants]; //
+  if (Array.isArray(participants) == false) { //if array
+    participants = [participants]; // //make it into an array (since this func works with an rray)
   }
   //format: userID, name, <message content>
 
-  //when this is run, have a switch statement on the other side, which depending on what the returned value is will display error (what kind etc) or success.
-
-
-
-  if (await existingConversationCheck(participants) == true) { //this will be written at a later date
-    console.log('conversation already exists, aborting process');
-  } else {
-    //existing convo doesn't exist; users are valid; now we can write the convo.
-
-    const db = getDatabase(app);
+    const db = getDatabase(app); //refreshes database instance; //refreshes database instance;
     convoID = undefined; //sets to undefined so it can be used in the while loop
     convoID = await getNextAvailableConversationID();
 
-    while (convoID === undefined) { //might not be needed, check.
+    while (convoID === undefined) { //terrible shit implementation
       setTimeout(() => {}, 100); //waits 100ms before checking if convoID is defined again
       console.log('timeout while convoID undefined')
     }
@@ -81,31 +68,28 @@ async function initiateNewConversation(participants, message) { //works? needs t
 
     //write convo data to new convo : 
     try {
-      writeNewConversation(participants, convoID) //convoID may not be finished from line 69 before being parsed?
+      writeNewConversation(participants, convoID) //write new convo to convo folder
     } catch (error) {
       console.error(error)
     }
-
-    // writeNewConversation(participants) //why is this here? it's just making it be called twice! FUCK!!!! immortalized.
-
     //now, we write the convo data to each user
     // for (i = 0; i < participants.length; i++) {
-      for (const element in participants) {
+      for (const element in participants) { //for each person
       console.log('aprticipants: ' + participants)
       console.log('participantsLoop i: ' + element) //for each person, append the new convoID to their conversations list.
-      const db = getDatabase(app);
+      const db = getDatabase(app); //refreshes database instance; //refreshes database instance;
       // users   //   user0           // 
-      await readDB('users/' + participants[element] + '/').then((response) => {
+      await readDB('users/' + participants[element] + '/').then((response) => { //read database for that person's response
 
         //
         //read db, when get a return parse it as 'response'
-        if (response !== false) {
+        if (response !== false) { //if it's a vlid response
           try {
             //this is being x2'd for some reason. this reason is because it's counting the amount of keys in the object, not the amount of entries in the array.
             //this means that i need to get the amount of entries in an object instead of the amount of keys.
             nextConvoSpace = (Object.keys(response.conversations).length) + 1; //if existing convos, get the amount and then add for the next convo
           } catch {
-            nextConvoSpace = 1;
+            console.error('couldnty get next convo space')
           }
           var reference = ref(db, 'users/' + participants[element] + '/conversations/');
           console.log('writing to users/' + participants[element] + '/conversations/\nparticipants is ' + participants)
@@ -128,7 +112,6 @@ async function initiateNewConversation(participants, message) { //works? needs t
     } 
     userUID = signedInUserID //placeholder
     sendMessage(convoID, message, userUID, Date.now());
-  }
   alert('finished')
 };
 
@@ -136,7 +119,7 @@ async function initiateNewConversation(participants, message) { //works? needs t
 
 function readDB(path) { 
   console.log('called')//path should be used like this: 
-  const db = getDatabase(app); //updates db shit (idrk waht it does)
+  const db = getDatabase(app); //refreshes database instance; //updates db shit (idrk waht it does)
   const reference = ref(db, path); //sets reference (based on parsed path, etc 'users/id/')
   return get(reference).then((snapshot) => {
     console.log(snapshot.val()) //get (data referenced) and then parse it as snapshot. the .then makes sure that data is returned BEFORE continuing or else you get a bunch of 'undefined's.
@@ -166,7 +149,7 @@ async function sendMessage(conversationID, content, sender, timestamp) {
   //by storing the data as a folder, with the timestamp as the name, the data is already oredered, as data is apended lower down in the structure as it's written, which will be at a time later than the previous data (since you can't go back in time).
   content = String(content) //ensure it's a string
   //what do we want this function to do?
-  const db = getDatabase(app);
+  const db = getDatabase(app); //refreshes database instance;
   var reference = ref(db, 'conversations/' + conversationID + '/messages/' + timestamp);
   await set(reference, {
     Content: content,
@@ -213,7 +196,7 @@ async function existingConversationCheck(users) { //check notability diagram.
 
 async function getNextAvailableConversationID() { //this works.... perfectly !?
   return new Promise((resolve) => { //establish new promise which can only be returned
-    const db = getDatabase(app)
+    const db = getDatabase(app); //refreshes database instance
     return readDB('conversations/').then((response) => { //read db, when get a return parse it as 'response'
       if (response !== false) { // if response isn't false (ie is valid)
         console.log('result: ' + JSON.stringify(lastDbSnapshot, null, 2)); //debug log
@@ -269,7 +252,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
 
 
 async function writecustompath(path, dataName, data) {
-  const db = getDatabase(app);
+  const db = getDatabase(app); //refreshes database instance;
   const reference = ref(db, path);
 
 
@@ -301,7 +284,7 @@ async function writeNewConversation(participants, id) { //id is undefined; why?
   //        #f: timestamp
   //          d: content
   //          d: owner
-  const db = getDatabase(app);
+  const db = getDatabase(app); //refreshes database instance;
   var reference = ref(db, 'conversations/' + id + '/');
   console.log('setting ref')
   await set(reference, {
@@ -427,7 +410,7 @@ function startNewConvo(inputUser, message) { //move all of this to initiatenewco
 }
 
 async function writeLookupData(email, displayName) {
-  const db = getDatabase(app);
+  const db = getDatabase(app); //refreshes database instance
   const reference = ref(db, 'lookup/');
   await set(reference, {
     [displayName]: email
@@ -443,8 +426,8 @@ let lastConvo; //last convo that was refreshed here, so also the one on 1st call
 
 async function listenForChanges(id) {
   console.log('listening on ' + id)
-  let db = getDatabase(app);
-  let listenRef = ref(db, 'conversations/' + id);
+  let db = getDatabase(app); //refreshes database instance
+  let listenRef = ref(db, 'conversations/' + id); //sets reference
 
   listenForConvoChanges = (snapshot) => {//first run
     if (!(lastConvo == conversationContext)) {
@@ -459,7 +442,7 @@ async function listenForChanges(id) {
 
 function removeConvoListener(id) {
   console.log('removing on ' + id)
-  let db = getDatabase(app);
+  let db = getDatabase(app); //refreshes database instance;
   let listenRef = ref(db, 'conversations/' + id);
   if (listenForConvoChanges) {
     off(listenRef, 'value', listenForConvoChanges); // Correctly remove the listener
@@ -470,7 +453,7 @@ function removeConvoListener(id) {
 var listLoaded = true;
 async function addConvoListListener() {
   console.log('adding conovo listener')
-  let db = getDatabase(app);
+  let db = getDatabase(app); //refreshes database instance;
   let listListenRef = ref(db, 'users/' + signedInUserID + '/conversations');
   console.log('listListenRef: ' + listListenRef)
   listenForListChanges = (snapshot) => {
