@@ -1,7 +1,5 @@
 //div with id messagesConversationContentContainer can be deleted to clear all chats. then, we can create the div again (with the same ID so it inherits css), before then rendering all elements within that div. so we can delete the div every time we're done with it.
 var lastLoaded = 0; //var for convo loading to use with listener
-
-var view;
 //elements struct 
     //DIV-ID: messagesContainer (do not touch)
         //DIV-ID: messagesConversationContentContainer this is the one that gets deleted for new conversations
@@ -58,13 +56,6 @@ function loadConversation(convoID) {
 
     try {
         readDB('conversations/' + convoID).then((conversationData) => {
-            view = conversationData
-            // readDB('conversations/1').then((conversationData) => {
-                // try {
-                //     console.log(conversationData.messages);
-                // } catch {
-                //     alert('stop')
-                // }
 
                 if (conversationData.messages == undefined) {
                     alert('error with conversation');
@@ -109,7 +100,6 @@ function loadConversation(convoID) {
                         newOutgoingMessage.className = "outgoingMessage";
 
                         var allOutgoingMessageContainers = document.querySelectorAll('.outgoingMessageContainer');
-                        view = allOutgoingMessageContainers //debug
                         //needs dot to signify class. also remember; this is an array!
 
                         if (allOutgoingMessageContainers.length > 0) { //if there are previous outgoing messages
@@ -239,11 +229,6 @@ function loadConversation(convoID) {
 
 function removeElements(type, id) { //just for use, we want to be remoing the ID 'messagesConversationContentContainer' between conversations, leaving the overarching 'messagesContainer alone.
     if (type == 'class') {
-        if (id) {
-            console.log(' yeah')
-        } else {
-            console.log('nah')
-        }
         var elements = document.getElementsByClassName(id);
         while(elements.length > 0){
             console.log('element length: ' + elements.length)
@@ -261,9 +246,6 @@ function removeElements(type, id) { //just for use, we want to be remoing the ID
 
 async function reloadConversationsSidebar(userID) {
     removeElements('id', 'listContainer');
-    // userID = 'user0'
-    //get conversations
-    var allBoxes = document.querySelectorAll('.incomingMessageContainer');
 
 
     var listContainer = document.createElement("div")
@@ -345,16 +327,6 @@ async function reloadConversationsSidebar(userID) {
 
 var orderedMessagesReference;
 var temp;
-async function createConversationOrderedMessagesReference(data) {
-    //create a reference to the conversation's messages
-    console.log(data)
-
-
-
-
-    //within this data, all we need to look at is the conversations property.
-    //this data IS ALREADY ORDERED BY TIMESTAMP, so it's in ascending (?) order.
-}
 
 
 function run(num) {

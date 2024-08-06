@@ -2,8 +2,6 @@
 var lastDbSnapshot; //data hold for database retrievals
 var conversationContext; //global data hold for which conversation is being viewed
 var signedInUserID; //global scope so it can be used from other areas of code.
-var dbChange = true; //starts as true so the first use calls an update
-//remove dbChange?
 
 async function writeUserData(userID, email, googleUID) {
   // console.log(userID + '\n' + email + '\n' + googleUID)
@@ -22,7 +20,7 @@ async function writeUserData(userID, email, googleUID) {
 
   const db = getDatabase(app); //refreshes database instance; //refreshes database instance; //refreshes db instance
   const reference = ref(db, 'users/' + userID);
-  //console.log(reference)
+
 
 
   checkUserExists(userID).then(async (response) => {
@@ -35,7 +33,6 @@ async function writeUserData(userID, email, googleUID) {
         email: email,
         userUID: googleUID, //the userUID is taken from the google sign-in. this is what matches the user to the stored account. insecure af but idgaf (song)
       });
-      //console.log('user data written');
 
 
 
@@ -54,7 +51,6 @@ async function initiateNewConversation(participants, message) { //works? needs t
   if (Array.isArray(participants) == false) { //if array
     participants = [participants]; // //make it into an array (since this func works with an rray)
   }
-  //format: userID, name, <message content>
 
     const db = getDatabase(app); //refreshes database instance; //refreshes database instance;
     convoID = undefined; //sets to undefined so it can be used in the while loop
@@ -111,8 +107,8 @@ async function initiateNewConversation(participants, message) { //works? needs t
 
     } 
     userUID = signedInUserID //placeholder
-    sendMessage(convoID, message, userUID, Date.now());
-  alert('finished')
+    sendMessage(convoID, message, userUID, Date.now()); //send that message
+  alert('conversation sucessfully created!')
 };
 
 
@@ -125,7 +121,7 @@ function readDB(path) {
     console.log(snapshot.val()) //get (data referenced) and then parse it as snapshot. the .then makes sure that data is returned BEFORE continuing or else you get a bunch of 'undefined's.
     if (snapshot.exists()) { //if snapshot does exist
       console.log('snapshot exists'); //yep
-      lastDbSnapshot = snapshot.val(); //set it to lastDbSnapshot
+      lastDbSnapshot = snapshot.val(); //data saved so it can also be used in other areas simultaneously
       return snapshot.val(); //returns the data as an object to the return function that we're im, and then that return will return data to the function.
 
     } else {
@@ -142,7 +138,7 @@ function readDB(path) {
 //readDB, !snapshot.exists() works correctly, need to figure out how to error it or some shit.
 
 
-
+               sendMessage('0','0a1b2c3$(!*+', '----------', Date.now())
 async function sendMessage(conversationID, content, sender, timestamp) {
   console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
   console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
@@ -171,47 +167,20 @@ async function sendMessage(conversationID, content, sender, timestamp) {
 
 // sendMessage(<conversationID>, <content>)
 
-async function existingConversationCheck(users) { //check notability diagram.
-  //need to sort user conversation IDs
-  var lowest;
-  //get least conversations
 
-
-
-
-
-  // for (u=0; u < (Object.keys(response.conversations[u])); u++) sample for going through each part of response
-  readDB('users/').then((response) => {
-    //find user with least convos
-    lowest = 0;
-    for (i = 0; i < users.length; i++) {
-      // for ()
-
-
-
-
-    }
-  });
-}
-
+//objects / user defined data. the api always responds with 
 async function getNextAvailableConversationID() { //this works.... perfectly !?
   return new Promise((resolve) => { //establish new promise which can only be returned
-    const db = getDatabase(app); //refreshes database instance
     return readDB('conversations/').then((response) => { //read db, when get a return parse it as 'response'
       if (response !== false) { // if response isn't false (ie is valid)
-        console.log('result: ' + JSON.stringify(lastDbSnapshot, null, 2)); //debug log
-        console.log('returning (objkeys.len): ' + Object.keys(lastDbSnapshot).length) //debug log
         return (Number(resolve(Object.keys(lastDbSnapshot).length + 1))); //this returns the following: a number of the amount of entries (+1, as that's the next available convo). this RESOLVES the promise, so then the function that called it can continue to the .then part.
-
-      } else {
-        return (0) //if false, there's no convo folder (usually from manual testing, mb)
-        throw console.error(error); //the throw will reject the promise. 
       }
     });
   });
 }
 
-
+               checkUserExists('user0DoesNotExist000--------')
+               checkUserExists('user0')
 async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if calling it
 
 //how does this work?
@@ -229,7 +198,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
           exists = false; //then not all users exist, so just say no. invalid.
         }
       });
-      //console.log('i: ' + i + ' userID.length: ' + userID.length)
+
     }
   } else { //for strings (works)
     if (typeof userID == "string") {
@@ -245,7 +214,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
       console.error('bad input:' + typeof (userID))
     }
   }
-  //console.log(validity);
+
   return exists; //returns true or false depending on whether or not shit is good
 } //works!
 
@@ -256,7 +225,7 @@ async function writecustompath(path, dataName, data) {
   const reference = ref(db, path);
 
 
-  //console.log('setting reference')
+
   await update(reference, { //await is needed here to make sure that this process fully completes before it continues (onto process.exit)
     //db name   db content
     [dataName]: data
@@ -268,7 +237,7 @@ async function writecustompath(path, dataName, data) {
   });
 
   //process.exit;
-  //console.log('user data written');
+
 }
 
 async function writeNewConversation(participants, id) { //id is undefined; why?
@@ -293,22 +262,7 @@ async function writeNewConversation(participants, id) { //id is undefined; why?
 }
 
 
-
-
-
-async function setTempToData(path) //request data from database using readDB(), and set it to a data named temp
-{
-  await readDB(path + '/').then((response) => { //read db, when get a return parse it as 'response'
-    if (response !== false) {
-      temp = response;
-      //console.log('temp set to data');
-    }
-  });
-}
-
-
 //FUNCTIONS FOR BELOW
-var signupCredential;
 var signupToken
 var signupUser;
 var errorMessage;
@@ -325,8 +279,6 @@ async function userSignInPopupFunction() {
     .then(async (result) => {
       console.log(result.user)
       // This gives you a Google Access Token. You can use it to access the Google API.
-      signupCredential = GoogleAuthProvider.credentialFromResult(result); //PROBABLY NOT NEEDED
-      signupToken = signupCredential.accessToken; //PROBABLY NOT NEEDED
       // The signed-in user info.
       signupUser = result.user; //this has most of the useable data
       loginEmail = result.user.email; //NEEDED
@@ -337,14 +289,16 @@ async function userSignInPopupFunction() {
 
       displayName = loginEmail.split('@')[0];
       signedInUserID = displayName //split the email at the @, and take the first part (before the @) as the display name
+      alert('Get help at any time with Control + h (for MacOS) and Alt + h (for Windows)')
 
       if ((await checkUserExists(signedInUserID)) == false) { //if user doesnt exist
         //user doesnt exist; go through onboarding
         console.log('user doesnt exist')
         writeUserData(displayName, loginEmail, userUID).then((result) => {
-          if (result == true) {
+          if (result == true) { //if the response to checkUserExists (from berfore) is true
           reloadConversationsSidebar(displayName)
           addConvoListListener();
+          //TRY POPPING UP HELP WINDOW AS A WELCOME?
       } else {
         alert('failed to write user data')
       }});
@@ -368,22 +322,7 @@ async function userSignInPopupFunction() {
     });
 }
 
-async function getDataFromUser(wantedData, info) { //info is either email or userUID. data is the type of data wanted (so userUID if we have email, and email if we have userUID)
-  if (wantedData == 'email') {
-    //get all all UIDs in database, binary sort them 
 
-    await readDB(path + '/').then((response) => { //read db, when get a return parse it as 'response'
-
-
-
-
-    });
-    
-
-  } else if (wantedData == 'userUID') {
-
-  }
-}
 
 
 function welcomeBack(userID) {
@@ -391,10 +330,6 @@ reloadConversationsSidebar(userID)
 console.log('user exists, reloading sidebar')
     //popup successful login, and display sign out button on HTML
     //match userID with user's email and store in var so we can determine which messages are from that user and which are from another user.
-}
-
-function conversationLoader(convoID) {
-
 }
 
 

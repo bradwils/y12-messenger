@@ -1,0 +1,146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+
+
+
+<div style="float: left; height:100%; width: 45%; margin-right: 5%">
+  <button onclick="window.close()">back to website</button>
+  <p></p>if you want to go back, click the button </p>
+  <h2>New? Read here for a tutorial!</h2>
+  <p>
+      Everytime you open the application (or refresh it) you will be prompted to sign in. You must sign in; declining this pop-up will simply do nothing, until you refresh again
+      <br> <br>
+      Accounts are binded to your email, so make sure to sign in with the same one every time.
+      <br> <br>
+      If this is your first time signing up; you will need to make a conversation with someone! Until then, or someone else creates a conversation with you, there will be no conversations. 
+      <br> <br>
+      <p>You can open this page at any time with <b>Control + h on MacOS</b>, and <b>Alt + h on Windows</b>  
+
+  </p>
+
+  <button onclick="getUserList()">refresh user list</button>
+  <textarea style="width: 100%; height: 40vh; overflow: scroll;" id="UserListTextarea"></textarea>
+  <br>
+  <br>
+  <div id="searchDiv">
+    <p>Search for users:</p>
+    <input id="searchInput" type="text">
+    <button onclick="binarySearch(document.getElementById('searchInput').value)">Search!</button>
+</div>
+</div>
+
+
+
+<div style="float: right; width:45%; margin-left: 5%">
+<p>
+  <h2>Other Help</h2>
+  <br><br>
+  Remember to scroll down after opening conversations & sending / reciving them.
+  <br><br>
+  You can always use the user list provided here to get someone's email to start a conversation with them, if you struggle to spell it correctly.
+  <br><br>
+  If any major issues happen, a refresh & re-sign in should fix it.
+  <br><br>
+  Be respectful to everyone. 
+
+
+
+</p>
+</div>
+
+
+<script type="module" src="imports.js"></script>
+<script src="dbScripts.js"></script>
+
+
+<script>
+
+binarySearchDiv = document.getElementById('searchDiv');
+binarySearchDiv.style.display = 'none';
+var responseHold;
+var sortedData;
+  async function getUserList() {
+    readDB('lookup/').then((response) => { //read db, when get a return parse it as 'response'
+    if (response !== false) {
+      responseList = response
+      console.log(responseList)
+      // Convert to string
+      let responseHold = JSON.stringify(responseList, null, 2);
+      // remove unwanted characters
+      //hey sir im so sorry for this i tried to work with the object but i kept getting some cooked error where it wouldnt parse correctly. so im gonna do this. unlucky
+      responseHold = responseHold.replace(/[^a-zA-Z:,]/g, ''); //string processing
+      responseHold = responseHold.split(',')
+      console.log('prerun\n' + responseHold);
+      for (let i = 0; i < responseHold.length; i++) {
+        console.log('running' + i)
+        responseHold[i] = responseHold[i].split(':')[0].toLowerCase();
+      }
+
+      
+        let responseLength = responseHold.length - 1;
+
+        //bubble sort here
+        for (let i=0; i < responseLength;i++) { //for each entry in response length
+          for (let j=0; j < (responseLength - i); j++) { //for each entry (decreasing as we get closer to full length)
+            if (responseHold[j] > responseHold[j + 1]) { //if prev number bigger than next number
+              // swap the numbers around so the bigger is after the smaller one
+              temp = responseHold[j];
+              responseHold[j] = responseHold[j + 1]; //swap
+              responseHold[j + 1] = temp;
+            }
+          }
+          sortedData = responseHold;
+        }
+        document.getElementById('UserListTextarea').value = responseHold;
+      }
+      binarySearchDiv.style.display = 'block';
+      return;
+    }
+  )};
+
+  async function binarySearch(input) { //binary search
+    var found = false;
+      searchData = sortedData;
+      middle = Math.floor(searchData.length / 2);
+      if (input == searchData[middle]) {
+        found = true;
+      } else if (input < searchData[middle]) {
+        for (let i = 0; i < middle; i++) {
+          if (input == searchData[i]) {
+            found = true;
+          }
+        }
+      } else if (input > searchData[middle]) {
+        for (let i = middle; i < searchData.length; i++) {
+          if (input == searchData[i]) {
+            found = true;
+          }
+        }
+      }
+      alert(found);
+
+  }
+
+
+
+
+//finished
+
+</script>
+
+
+
+
+
+
+
+
+
+</body>
+</html>

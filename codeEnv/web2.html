@@ -144,9 +144,15 @@
 
 
 
-
-
-
+    <script>
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'h') {
+            e.preventDefault(); // prevent the default action just in case
+            console.log("control (^, macos) + H were pressed");
+            window.open('http://localhost:5500/help.html');
+        }
+    });
+    </script>
 
 
 
@@ -165,6 +171,14 @@
 <script src="dbScripts.js"></script>
 <script src="messagesContainerConversation.js"></script>
 <script src="initial.js"></script>
+
+<script>
+//keydown script
+
+
+</script>
+
+</script>
 
 </html>
 
