@@ -289,7 +289,7 @@ async function userSignInPopupFunction() {
 
       displayName = loginEmail.split('@')[0];
       signedInUserID = displayName //split the email at the @, and take the first part (before the @) as the display name
-      alert('Get help at any time with Control + h (for MacOS) and Alt + h (for Windows)')
+      alert('Get help at any time with Control + h (for MacOS) and Control + h (for Windows)')
 
       if ((await checkUserExists(signedInUserID)) == false) { //if user doesnt exist
         //user doesnt exist; go through onboarding

@@ -149,7 +149,8 @@
         if (e.ctrlKey && e.key === 'h') {
             e.preventDefault(); // prevent the default action just in case
             console.log("control (^, macos) + H were pressed");
-            window.open('http://localhost:5500/help.html');
+            window.open('http://localhost:5500/help.html'); //NOTE: THIS MAY NOT WORK IF YOU HAVE ANOTHER ADDRESS/PORT OPEN IN LIVE SERVER! 
+            //PLEASE CONTACT ME IF CONTROL + H THROWS AN ERROR IN THE CONSOLE AND DOES NOT WORK! I CAN HELP YOU ADJUST YOUR LIVE SERVER SO IT WORKS!
         }
     });
     </script>
