@@ -86,6 +86,7 @@ async function initiateNewConversation(participants, message) { //works? needs t
             nextConvoSpace = (Object.keys(response.conversations).length) + 1; //if existing convos, get the amount and then add for the next convo
           } catch {
             console.error('couldnty get next convo space')
+            nextConvoSpace = 1;
           }
           var reference = ref(db, 'users/' + participants[element] + '/conversations/');
           console.log('writing to users/' + participants[element] + '/conversations/\nparticipants is ' + participants)
@@ -136,9 +137,6 @@ function readDB(path) {
 
 
 //readDB, !snapshot.exists() works correctly, need to figure out how to error it or some shit.
-
-
-               sendMessage('0','0a1b2c3$(!*+', '----------', Date.now())
 async function sendMessage(conversationID, content, sender, timestamp) {
   console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
   console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
@@ -179,8 +177,6 @@ async function getNextAvailableConversationID() { //this works.... perfectly !?
   });
 }
 
-               checkUserExists('user0DoesNotExist000--------')
-               checkUserExists('user0')
 async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if calling it
 
 //how does this work?
@@ -289,7 +285,7 @@ async function userSignInPopupFunction() {
 
       displayName = loginEmail.split('@')[0];
       signedInUserID = displayName //split the email at the @, and take the first part (before the @) as the display name
-      alert('Get help at any time with Control + h (for MacOS) and Control + h (for Windows)')
+      alert('Get help at any time with Control + h (for MacOS) and Alt + h (for Windows)')
 
       if ((await checkUserExists(signedInUserID)) == false) { //if user doesnt exist
         //user doesnt exist; go through onboarding
@@ -298,6 +294,7 @@ async function userSignInPopupFunction() {
           if (result == true) { //if the response to checkUserExists (from berfore) is true
           reloadConversationsSidebar(displayName)
           addConvoListListener();
+          document.title = 'user: ' + signedInUserID;
           //TRY POPPING UP HELP WINDOW AS A WELCOME?
       } else {
         alert('failed to write user data')
@@ -306,6 +303,7 @@ async function userSignInPopupFunction() {
         console.log('user does already exist')
         welcomeBack(signedInUserID);
         addConvoListListener();
+        document.title = 'user: ' + signedInUserID;
       }
 
       // ...
@@ -400,4 +398,11 @@ async function addConvoListListener() {
     }
   }
   onValue(listListenRef, listenForListChanges);
+}
+
+function scroll() { //works when mabunally run but not when run within the code awesome!
+  console.log('scrolling')
+  var messageAuthors = document.getElementsByClassName('messageAuthor');
+  var lastMessageAuthor = messageAuthors[messageAuthors.length - 1];
+  lastMessageAuthor.scrollIntoView({ block: 'nearest' });
 }

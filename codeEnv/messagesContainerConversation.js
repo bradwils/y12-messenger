@@ -174,11 +174,9 @@ function loadConversation(convoID) {
 
 
                 }
+                scroll();
+                //all messenegs have been rendered
             });   
-        console.log('asdhgasdhiasidasd')
-
-        var messagesContainerTarget = document.getElementById('messagesConversationContentContainer');
-        messagesContainerTarget.scrollTop = messagesContainerTarget.scrollHeight;
 
         
     } catch(error) {
@@ -198,20 +196,6 @@ function loadConversation(convoID) {
     console.log('fully loaded + convoID: ' + convoID)
 
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
 
 
 
@@ -248,6 +232,9 @@ async function reloadConversationsSidebar(userID) {
     removeElements('id', 'listContainer');
 
 
+
+
+    //setup the first box ie creating new convos
     var listContainer = document.createElement("div")
     listContainer.id = 'listContainer';
     var conversationsContainer = document.getElementById('conversationsContainer');
@@ -284,14 +271,17 @@ async function reloadConversationsSidebar(userID) {
     newConvoMessageBox.id = 'newConvoMessageBox';
     newConvoBox[0].appendChild(newConvoMessageBox);
 
+    //end
 
-
+    //for each of the user's conversations
     readDB('users/' + userID + '/conversations').then((response) => {
         console.log(response)
        for (i=0; i < response.length; i++) { //bandaid fix to unknown read issue with this specific set of data
         if (response[i] == undefined) {
             continue;
         };
+
+        //create each box for each conversation
         var listContainer = document.getElementById('listContainer')
         var allConvoListBoxes = document.getElementsByClassName('conversationListBox');
         var allConvoListBoxTexts = document.getElementsByClassName('conversationListBoxText');
@@ -343,37 +333,3 @@ function k(num) {
     loadConversation(String(num))
     reloadConversationsSidebar('user0')
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-
-//work on using copilot to do iife (fix the issue where loadConversation(response[i]) is using the final value of i instead of the one in it's current iteration)
