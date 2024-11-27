@@ -234,42 +234,48 @@ async function reloadConversationsSidebar(userID) {
 
 
 
-    //setup the first box ie creating new convos
-    var listContainer = document.createElement("div")
-    listContainer.id = 'listContainer';
-    var conversationsContainer = document.getElementById('conversationsContainer');
-    conversationsContainer.appendChild(listContainer);
-
-    listContainer = document.getElementById('listContainer');
-
-    var newConvoBox = document.createElement("div");
-    newConvoBox.className = 'newConvoBox';
-    listContainer.appendChild(newConvoBox);
-
-    newConvoBox = document.getElementsByClassName('newConvoBox');
-
-    var newConvoInput = document.createElement("input");
-    newConvoInput.placeholder = 'New Conversation With';
-    newConvoInput.type = 'email';
-    newConvoInput.id = 'newConversationEmailInput';
-
-    newConvoBox[0].appendChild(newConvoInput);
 
 
-    var newConvoButton = document.createElement("button");
-    newConvoButton.id = 'newConvoButton';
-    newConvoButton.addEventListener('click', function() {
-        startNewConvo(document.getElementById('newConversationEmailInput').value, document.getElementById('newConvoMessageBox').value);
-    });
-    newConvoButton.innerHTML = 'make new convo';
+        var listContainer = document.createElement("div")
+        listContainer.id = 'listContainer';
+        var conversationsContainer = document.getElementById('conversationsContainer');
+        conversationsContainer.appendChild(listContainer);
 
-    newConvoBox[0].appendChild(newConvoButton);
+        listContainer = document.getElementById('listContainer');
 
-    var newConvoMessageBox = document.createElement("input");
-    newConvoMessageBox.placeholder = 'Message Content';
-    newConvoMessageBox.type = 'text';
-    newConvoMessageBox.id = 'newConvoMessageBox';
-    newConvoBox[0].appendChild(newConvoMessageBox);
+
+        //setup the first box ie creating new convos
+        if (demo == false) {
+
+            var newConvoBox = document.createElement("div");
+            newConvoBox.className = 'newConvoBox';
+            listContainer.appendChild(newConvoBox);
+
+            newConvoBox = document.getElementsByClassName('newConvoBox');
+
+            var newConvoInput = document.createElement("input");
+            newConvoInput.placeholder = 'New Conversation With';
+            newConvoInput.type = 'email';
+            newConvoInput.id = 'newConversationEmailInput';
+
+            newConvoBox[0].appendChild(newConvoInput);
+
+
+            var newConvoButton = document.createElement("button");
+            newConvoButton.id = 'newConvoButton';
+            newConvoButton.addEventListener('click', function() {
+                startNewConvo(document.getElementById('newConversationEmailInput').value, document.getElementById('newConvoMessageBox').value);
+            });
+            newConvoButton.innerHTML = 'make new convo';
+
+            newConvoBox[0].appendChild(newConvoButton);
+
+            var newConvoMessageBox = document.createElement("input");
+            newConvoMessageBox.placeholder = 'Message Content';
+            newConvoMessageBox.type = 'text';
+            newConvoMessageBox.id = 'newConvoMessageBox';
+            newConvoBox[0].appendChild(newConvoMessageBox);
+        }
 
     //end
 
@@ -300,6 +306,14 @@ async function reloadConversationsSidebar(userID) {
             return function() {
                 console.log('RUNNING loadConvo with i as ' + index + ' and response[i]: ' + response[index]);
                 loadConversation(response[index]);
+                const elements = document.querySelectorAll("p");
+                for (i=0; i<elements.length; i++) {
+                    if (elements[i].innerHTML == 'Conversation ' + response[index]) {
+                        elements[i].style.fontWeight = 'bold';
+                    } else {
+                        elements[i].style.fontWeight = 'normal';
+                    }
+                }
             };
         })(i));
         
@@ -307,7 +321,11 @@ async function reloadConversationsSidebar(userID) {
 
         var convoListBoxText = document.createElement("p");
         // convoListBoxText.className = 'conversationListBoxText';
-        convoListBoxText.innerHTML = response[i]; //needs to be name of convo participants later
+        convoListBoxText.innerHTML = 'Conversation ' + (response[i]);
+        if (conversationContext == response[i]) {
+            convoListBoxText.style.weight = 'bold'
+        } //needs to be name of convo participants later
+        console.log('\n\n\n\ context: ' + conversationContext + ' response: ' + response[i] + '\n\n\n')
 
         allConvoListBoxTexts[allConvoListBoxTexts.length - 1].appendChild(convoListBoxText);
 

@@ -16,7 +16,7 @@ body {
 #listContainer {
     width: 25vw;
     height: 100%;
-    background-color: rgb(220, 241, 245);
+    background-color: rgb(225 225 248);
     overflow: scroll;
     display:flex;
     flex-direction: column;
@@ -25,7 +25,7 @@ body {
 
 .conversationListBox {
     display: flex;
-    border: 1px solid rgb(191, 162, 242);
+    border: 1px solid rgb(255 255, 255);
     width: 100%;
     height: 10%;
     /* background-color: rgb(191, 162, 242);            this can't be seen as the photobox & textbox cover it up. */
@@ -34,7 +34,7 @@ body {
 .conversationListBoxText {
     flex-grow: 1;
     /* border: 1px solid blue; */
-    background-color:aqua;
+    background-color:rgb(225 225 248);
 }
 
 
@@ -66,7 +66,7 @@ body {
 
 #messagesConversationContentContainer {
     /* flex: auto; */
-    background-color: gold;
+    background-color: #f2eaff;
     flex: 1;
     height: 90%;
 
@@ -76,7 +76,7 @@ body {
 
 #messagesConversationSendContainer {
     float:left ;
-    background-color: greenyellow;
+    background-color: rgb(233 251 239);
     height: 10%;
     width: 100%;
     display: flex;
@@ -86,7 +86,7 @@ body {
 .newConvoBox {
     width: 100%;
     height: 10%;
-    background-color: #c23535;
+    background-color: #ffffff;
     display: flex;
     flex-direction: column;
     overflow:scroll
@@ -107,14 +107,14 @@ body {
 
     background-color: white;
 
-    box-shadow: -5px 5px #ededed;
+    box-shadow: -5px 5px #535252;
 
     float: left;
 
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
     border-bottom-right-radius: 15px;
-    border: 1px solid brown;
+    border: 1px solid rgb(150, 96, 108);
 
     padding-left: 1rem;
     padding-right:1rem;
@@ -137,7 +137,7 @@ body {
 
     background-color: white;
 
-    box-shadow: 5px 5px #ededed;
+    box-shadow: 5px 5px #535252;
 
     border-top-left-radius: 15px;
     border-top-right-radius: 15px;
@@ -189,7 +189,7 @@ body {
 #statusContainer {
     width: 25vw;
     height: 5vh;
-    background-color: beige;
+    background-color: rgb(186, 186, 186);
     overflow: scroll;
     /* display:flex; */
 

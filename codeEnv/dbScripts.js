@@ -138,22 +138,27 @@ function readDB(path) {
 
 //readDB, !snapshot.exists() works correctly, need to figure out how to error it or some shit.
 async function sendMessage(conversationID, content, sender, timestamp) {
-  console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
-  console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
-  //by storing the data as a folder, with the timestamp as the name, the data is already oredered, as data is apended lower down in the structure as it's written, which will be at a time later than the previous data (since you can't go back in time).
-  content = String(content) //ensure it's a string
-  //what do we want this function to do?
-  const db = getDatabase(app); //refreshes database instance;
-  var reference = ref(db, 'conversations/' + conversationID + '/messages/' + timestamp);
-  await set(reference, {
-    Content: content,
-    Owner: sender
-  }).catch((error) => {
-    console.error('error while sending message, ' + error)
-  })
-  //promise never gets resolved here not sure why
-  console.log('sent')
-  //process.exit;
+  if (typeof content === 'undefined') {
+    alert('Empty message; please add something!');
+    return;
+  } else {
+    console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
+    console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
+    //by storing the data as a folder, with the timestamp as the name, the data is already oredered, as data is apended lower down in the structure as it's written, which will be at a time later than the previous data (since you can't go back in time).
+    content = String(content) //ensure it's a string
+    //what do we want this function to do?
+    const db = getDatabase(app); //refreshes database instance;
+    var reference = ref(db, 'conversations/' + conversationID + '/messages/' + timestamp);
+    await set(reference, {
+      Content: content,
+      Owner: sender
+    }).catch((error) => {
+      console.error('error while sending message, ' + error)
+    })
+    //promise never gets resolved here not sure why
+    console.log('sent')
+    //process.exit;
+  }
 }
 
 // example use: sendMessage('1','this is my message', 'user0', Date.now())

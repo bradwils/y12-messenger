@@ -1,0 +1,191 @@
+<!DOCTYPE html>
+<link rel="stylesheet" href="web2style.css">
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <div id="container">
+        
+        <div id="conversationsContainer">
+            <div id="listContainer">
+                <!-- <div class="newConvoBox">
+                    <input id="newConversationEmailInput" placeholder="Chat with (email)>" type="email" name="" id="newConversationEmailInput">
+                    <button onclick="testFunc" id="newConvoButton">make new convo</button>
+                    <input id="newConvoMessageBox" placeholder="Message" type="text">
+                </div> -->
+                
+
+                <!-- <div class="conversationListBox">
+                    <div class="conversationListBoxText">
+                        <p>text goes here</p>
+                    </div>
+                </div> -->
+            </div>
+        </div>
+
+        <div id="messagesContainer">
+
+            <div id="messagesConversationContentContainer">
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Click on a conversation on the left to open it</p>
+                    </div>
+                    <div class="clearFloat"></div>
+                    <p class="messageAuthor">System</p>
+                </div>
+            </div>
+
+            <div id="messagesConversationSendContainer">
+
+                <div id="sendMessageTextboxContainer">
+                    <textarea id="sendMessageTextarea">Enter message</textarea>
+                </div>
+                <div id="sendMessageContentButton">
+                    <button onclick="sendMessage(conversationContext, document.getElementById('sendMessageTextarea').value, signedInUserID, Date.now())" id="sendButton">send</button>
+                </div>
+
+
+            </div>
+        </div> <!-- end of messages container-->
+
+
+
+
+    </div> <!-- end of overarching container -->
+
+
+
+
+
+
+
+    <script>
+    document.addEventListener('keydown', (e) => {
+        if (e.ctrlKey && e.key === 'h') {
+            e.preventDefault(); // prevent the default action just in case
+            console.log("control (^, macos) + H were pressed");
+            window.open('http://localhost:5500/help.html');
+        }
+    });
+    </script>
+
+
+
+
+
+
+
+
+
+
+
+
+</body>
+
+<script type="module" src="imports.js"></script>
+<script src="dbScripts.js"></script>
+<script src="messagesContainerConversation.js"></script>
+<script src="demoUser1Initial.js"></script>
+
+</html>
+
+
+
+
+
+
+
+<!-- old div (template type shi)
+             <div id="messagesConversationContentContainer">
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div>  
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div> 
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div>
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div>
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div> 
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div> 
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div> 
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+                <div class="incomingMessageContainer">
+                    <div class="incomingMessage">
+                        <p>Lorem ipsum, dolor sit amet consectetur adipisicing elit. Possimus non quod veniam. Recusandae cumque beatae molestiae dolorum. Quae quos at quaerat ab aliquam, harum magnam officia iusto esse, earum obcaecati.</p>
+                    </div>
+                    <div class="clearFloat"></div> 
+                    
+                    <p class="messageAuthor"> author</p> 
+                </div>
+
+
+                <div class="outgoingMessageContainer">
+                    <div class="outgoingMessage">
+                        <p>Lorem ipsum dolor sit amet consectetur adipisicing elit. Modi hic quaerat ye aliquid eum, quibusdam reiciendis, dolor velit laboriosam sit ut optio iste temporibus eos alias accusantium natus repellat nesciunt aspernatur.</p>
+                    </div>
+                    <div class="clearFloat"></div>
+                    <p class="messageAuthor"> author</p>
+                </div>
+            </div>
+
+
+
+
+
+-->
