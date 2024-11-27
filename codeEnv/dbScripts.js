@@ -56,7 +56,7 @@ async function initiateNewConversation(participants, message) { //works? needs t
     convoID = undefined; //sets to undefined so it can be used in the while loop
     convoID = await getNextAvailableConversationID();
 
-    while (convoID === undefined) { //terrible shit implementation
+    while (convoID === undefined) { //terrible implementation
       setTimeout(() => {}, 100); //waits 100ms before checking if convoID is defined again
       console.log('timeout while convoID undefined')
     }
@@ -116,7 +116,7 @@ async function initiateNewConversation(participants, message) { //works? needs t
 
 function readDB(path) { 
   console.log('called')//path should be used like this: 
-  const db = getDatabase(app); //refreshes database instance; //updates db shit (idrk waht it does)
+  const db = getDatabase(app); //refreshes database instance; //updates db (idrk waht it does)
   const reference = ref(db, path); //sets reference (based on parsed path, etc 'users/id/')
   return get(reference).then((snapshot) => {
     console.log(snapshot.val()) //get (data referenced) and then parse it as snapshot. the .then makes sure that data is returned BEFORE continuing or else you get a bunch of 'undefined's.
@@ -136,7 +136,7 @@ function readDB(path) {
 
 
 
-//readDB, !snapshot.exists() works correctly, need to figure out how to error it or some shit.
+//readDB, !snapshot.exists() works correctly, need to figure out how to error it or some .
 async function sendMessage(conversationID, content, sender, timestamp) {
   console.log(conversationID + ' + ' + content + ' + ' + sender + ' + ' + timestamp)
   console.log('signedinedid ' + signedInUserID + '\n' + 'conversations/' + conversationID + '/messages/' + timestamp)
@@ -211,7 +211,7 @@ async function checkUserExists(userID) { //MUST use 'await' checkUserValidity if
     }
   }
 
-  return exists; //returns true or false depending on whether or not shit is good
+  return exists; //returns true or false depending on whether or not this is good
 } //works!
 
 
